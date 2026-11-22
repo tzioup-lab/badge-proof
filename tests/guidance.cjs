@@ -82,8 +82,16 @@ module.exports = async function checkGuidance(page, artifacts) {
       await page.keyboard.press("Escape");
     }
   }
-  await page.locator("#drop-zone").focus();
-  const chooser = page.waitForEvent("filechooser"); await page.keyboard.press("Enter");
+  await page.locator("#start-walkthrough").click();
+  // Dismiss and move focus in the same task, before the native close event.
+  // Its later delivery must not steal the user's next keyboard action.
+  await page.evaluate(() => {
+    document.querySelector("#tour-close").click();
+    document.querySelector("#drop-zone").focus();
+  });
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  assert.equal(await page.locator("#drop-zone").evaluate(node => node === document.activeElement), true, "closing the tour must not steal subsequent focus");
+  const chooser = page.waitForEvent("filechooser"); await page.locator("#drop-zone").press("Enter");
   await (await chooser).setFiles([]);
   await page.locator("main:not([inert])").waitFor();
   await page.setViewportSize(originalViewport);

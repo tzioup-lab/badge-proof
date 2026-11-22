@@ -97,6 +97,12 @@ export function startGuidance({getLanguage, getPreset}) {
   function changeStep(next) {
     clearTarget(); step = next; render();
   }
+  function closeTour() {
+    clearTarget(); dialog.close();
+    // Restore immediately. A queued close-event handler could steal focus
+    // from a control the user has already chosen after dismissing the tour.
+    $("#start-walkthrough").focus();
+  }
   $("#start-walkthrough").onclick = () => {
     changeStep(0); dialog.classList.remove("tour-left");
     if (!dialog.open) dialog.show();
@@ -104,9 +110,9 @@ export function startGuidance({getLanguage, getPreset}) {
   };
   $("#tour-back").onclick = () => changeStep(Math.max(0, step - 1));
   $("#tour-next").onclick = () => {
-    if (step === text().steps.length - 1) dialog.close(); else changeStep(step + 1);
+    if (step === text().steps.length - 1) closeTour(); else changeStep(step + 1);
   };
-  $("#tour-close").onclick = () => dialog.close();
+  $("#tour-close").onclick = closeTour;
   $("#tour-show").onclick = () => {
     clearTarget();
     if (step === 1 || step === 2) $("#library-disclosure").open = true;
@@ -120,15 +126,15 @@ export function startGuidance({getLanguage, getPreset}) {
     dialog.classList.toggle("tour-left", innerWidth > 900 && bounds.left + bounds.width / 2 > innerWidth / 2);
   };
   dialog.addEventListener("close", () => {
-    clearTarget(); $("#start-walkthrough").focus();
+    if (!dialog.open) clearTarget();
   });
   // Nonmodal dialogs allow working with the sheet and need explicit Escape handling.
   document.addEventListener("keydown", event => {
     if (event.key === "Escape" && dialog.open && !document.querySelector("dialog:modal")) {
-      event.preventDefault(); dialog.close();
+      event.preventDefault(); closeTour();
     }
   });
   // Opening the reference help ends the tour rather than covering it with two panels.
-  $("#help").addEventListener("click", () => {if (dialog.open) dialog.close();});
+  $("#help").addEventListener("click", () => {if (dialog.open) closeTour();});
   return {render};
 }

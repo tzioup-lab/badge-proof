@@ -1,4 +1,4 @@
-// The browser library keeps originals as Blobs. The optional local server remains
+// The browser library separates metadata and binary originals. The local server remains
 // a source of portable-library backups, and never receives browser-library data.
 const MAX_FILE = 64 * 1024 * 1024;
 const SIZES = ["25", "32", "58"];
@@ -28,6 +28,7 @@ function metadata(record) {
   const {source, preview, ...info} = record;
   return info;
 }
+const blobOf = (value, type) => value instanceof Blob ? value : new Blob([value], {type});
 function validateInfo(info) {
   if (!info || typeof info !== "object" || ![info.width, info.height].every(value => Number.isFinite(value) && value > 0)) throw problem("invalidBackup");
 }
@@ -35,7 +36,7 @@ export function validateFramings(framings = {}) {
   if (!framings || typeof framings !== "object" || Array.isArray(framings)) throw problem("invalidBackup");
   const clean = {};
   for (const [size, crop] of Object.entries(framings)) {
-    if (!SIZES.includes(size) || !crop || !Number.isFinite(crop.zoom) || crop.zoom < .1 || crop.zoom > 2 ||
+    if (!SIZES.includes(size) || !crop || !Number.isFinite(crop.zoom) || crop.zoom <= 0 || crop.zoom > 2 ||
         ![crop.x, crop.y].every(value => Number.isFinite(value) && Math.abs(value) <= 70)) throw problem("invalidBackup");
     clean[size] = {zoom: crop.zoom, x: crop.x, y: crop.y};
   }
@@ -56,21 +57,36 @@ export async function openLibrary() {
   let database;
   try {
     database = await new Promise((resolve, reject) => {
-      const request = indexedDB.open("badge-proof-library", 1);
-      request.onupgradeneeded = () => request.result.createObjectStore("designs", {keyPath: "id"});
+      const request = indexedDB.open("badge-proof-library", 2);
+      request.onupgradeneeded = () => {
+        const db = request.result;
+        if (!db.objectStoreNames.contains("designs")) db.createObjectStore("designs", {keyPath: "id"});
+        if (!db.objectStoreNames.contains("sources")) {
+          const sources = db.createObjectStore("sources");
+          const designs = request.transaction.objectStore("designs");
+          designs.openCursor().onsuccess = event => {
+            const cursor = event.target.result;
+            if (!cursor) return;
+            const record = cursor.value;
+            if (record.source) {sources.put(record.source, record.id); delete record.source; cursor.update(record);}
+            cursor.continue();
+          };
+        }
+      };
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
       request.onblocked = () => reject(problem("storageUnavailable"));
     });
   } catch {throw problem("storageUnavailable");}
+  database.onversionchange = () => database.close();
   const previews = new Map();
   function transaction(mode, task) {
     return new Promise((resolve, reject) => {
-      const tx = database.transaction("designs", mode);
+      const tx = database.transaction(["designs", "sources"], mode);
       let result;
       tx.oncomplete = () => resolve(result);
       tx.onabort = tx.onerror = () => reject(problem(tx.error?.name === "QuotaExceededError" ? "storageFull" : "storageUnavailable"));
-      try {task(tx.objectStore("designs"), value => {result = value;});} catch (error) {tx.abort(); reject(error);}
+      try {task(tx.objectStore("designs"), value => {result = value;}, tx.objectStore("sources"));} catch (error) {tx.abort(); reject(error);}
     });
   }
   const get = id => transaction("readonly", (store, done) => {store.get(id).onsuccess = event => done(event.target.result);});
@@ -80,14 +96,21 @@ export async function openLibrary() {
       if (!previews.has(record.id)) {
         const item = await get(record.id);
         if (!item?.preview) throw problem("storageUnavailable");
-        previews.set(record.id, URL.createObjectURL(item.preview));
+        previews.set(record.id, URL.createObjectURL(blobOf(item.preview, "image/png")));
       }
       return previews.get(record.id);
     },
     async restore(records) {
       // Validation/parsing occurs before this single transaction, so a failed
       // restore never leaves a partly imported or overwritten library.
-      await transaction("readwrite", (store) => {for (const record of records) store.put(record);});
+      const prepared = [];
+      for (const record of records) {
+        const {source, preview, ...info} = record;
+        prepared.push({info: {...info, preview: await preview.arrayBuffer()}, bytes: await source.arrayBuffer()});
+      }
+      await transaction("readwrite", (store, done, sources) => {
+        for (const record of prepared) {store.put(record.info); sources.put(record.bytes, record.info.id);}
+      });
       for (const url of previews.values()) URL.revokeObjectURL(url);
       previews.clear();
     },
@@ -103,11 +126,12 @@ export async function openLibrary() {
         const type = sourceType(bytes);
         const id = await sourceID(bytes);
         const name = decodeURIComponent(options.headers["X-File-Name"]).slice(0, 240);
-        const record = {id, name, type, size: bytes.length, source: new Blob([bytes], {type}), ...options.initial};
-        const saved = await transaction("readwrite", (store, done) => {
+        const initial = options.initial ? {...options.initial, preview: await options.initial.preview.arrayBuffer()} : {};
+        const record = {id, name, type, size: bytes.length, ...initial};
+        const saved = await transaction("readwrite", (store, done, sources) => {
           store.get(id).onsuccess = event => {
             const existing = event.target.result;
-            if (!existing) store.put(record);
+            if (!existing) {store.put(record); sources.put(bytes.buffer, id);}
             done(existing || record);
           };
         });
@@ -118,10 +142,13 @@ export async function openLibrary() {
       const [, id, part] = match;
       if (method === "GET") {
         const record = await get(id);
-        return record?.[part] ? new Response(record[part]) : json({}, 404);
+        const data = part === "source" ? await transaction("readonly", (store, done, sources) => {
+          sources.get(id).onsuccess = event => done(event.target.result);
+        }) : record?.preview;
+        return data ? new Response(blobOf(data, part === "source" ? record.type : "image/png")) : json({}, 404);
       }
       if (method === "DELETE") {
-        await transaction("readwrite", store => store.delete(id));
+        await transaction("readwrite", (store, done, sources) => {store.delete(id); sources.delete(id);});
         if (previews.has(id)) URL.revokeObjectURL(previews.get(id));
         previews.delete(id);
         return json({removed: id});
@@ -132,7 +159,7 @@ export async function openLibrary() {
         if (payload.info) validateInfo(payload.info);
         let framing;
         if (payload.framing) framing = validateFramings({[payload.framing.size]: payload.framing});
-        const preview = payload.preview ? new Blob([base64Bytes(payload.preview)], {type: "image/png"}) : null;
+        const preview = payload.preview ? base64Bytes(payload.preview).buffer : null;
         const saved = await transaction("readwrite", (store, done) => {
           store.get(id).onsuccess = event => {
             const record = event.target.result;

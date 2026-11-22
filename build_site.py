@@ -9,7 +9,7 @@ import sys
 
 root = Path(__file__).resolve().parent
 destination = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else root / "dist"
-files = ["index.html", "composer.css", "composer.js", "library-store.js", "backup.js",
+files = ["index.html", "composer.css", "composer.js", "library-store.js", "backup.js", "archive.js",
          "app-shell.js", "presets.js", "quality.js", "manifest.webmanifest"]
 files += [str(path.relative_to(root)) for folder in ["vendor", "icons"] for path in sorted((root / folder).glob("*")) if path.is_file()]
 version = json.loads((root / "package.json").read_text())["version"]

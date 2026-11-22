@@ -30,6 +30,7 @@ const translations = {
   storageFull: ["Le navigateur n’a plus assez de place. Sauvegardez la bibliothèque puis libérez de l’espace sur l’appareil.", "The browser has insufficient storage. Back up the library, then free some space on the device."],
   fileTooLarge: ["Choisissez un fichier de 64 Mo maximum.", "Choose a file up to 64 MB."],
   invalidBackup: ["Sauvegarde invalide ou endommagée. La bibliothèque n’a pas été modifiée.", "Invalid or damaged backup. The library was not changed."],
+  backupTooLarge: ["La sauvegarde dépasse les limites du format (4 Go ou 10 000 visuels). Aucun fichier incomplet n’a été téléchargé. Conservez les données de ce navigateur.", "The backup exceeds the format limits (4 GB or 10,000 designs). No incomplete file was downloaded. Keep this browser’s data."],
   urlUnsupported: ["Utilisez un lien HTTP ou HTTPS direct vers une image ou un PDF.", "Use a direct HTTP or HTTPS image or PDF link."],
   urlBlocked: ["Ce site bloque la lecture depuis le navigateur, ou le fichier est inaccessible. Ouvrez le lien, téléchargez le fichier, puis ajoutez-le ici.", "This site blocks browser access, or the file is unavailable. Open the link, download the file, then add it here."],
   backupTitle: ["Votre bibliothèque reste sur cet appareil", "Your library stays on this device"],
@@ -539,7 +540,7 @@ function render() {
   assignment.replaceChildren(new Option(t("empty"), ""), ...assets.map(item => new Option(item.name, item.id)));
   assignment.value = current?.assetId || "";
   for (const key of ["zoom", "x", "y"]) {
-    const value = current ? (key === "zoom" ? Math.round(current.zoom * 100) : current[key]) : (key === "zoom" ? 100 : 0);
+    const value = current ? (key === "zoom" ? Number((current.zoom * 100).toFixed(6)) : current[key]) : (key === "zoom" ? 100 : 0);
     $("#" + key + "-number").value = value;
     if (key === "zoom") $("#zoom").value = value;
   }
@@ -872,7 +873,7 @@ function reduceTo300() {
   const asset = assetFor(placement);
   if (!asset) return;
   const {ppi} = placementQuality(asset, placement);
-  if (ppi !== null && ppi < 300) placement.zoom = Math.max(.1, placement.zoom * ppi / 301);
+  if (ppi !== null && ppi < 300) placement.zoom = Math.max(.00000001, placement.zoom * ppi / 301);
   saveLayout();
   render();
 }
@@ -902,8 +903,8 @@ function renderEditor() {
     guide.style.width = guide.style.height = preset()[name] / preset().cut * 100 + "%";
     canvas.append(guide);
   }
-  $("#editor-zoom").value = Math.round(placement.zoom * 100);
-  $("#editor-zoom-value").textContent = Math.round(placement.zoom * 100) + "%";
+  $("#editor-zoom").value = Number((placement.zoom * 100).toFixed(6));
+  $("#editor-zoom-value").textContent = Number((placement.zoom * 100).toFixed(6)) + "%";
   const description = qualityDescription(asset, placement);
   $("#editor-quality").textContent = [description.label, ...description.notes].join(" ");
   $("#editor-quality").classList.toggle("warning", description.quality.ppi !== null && description.quality.ppi < 300);
@@ -1169,8 +1170,8 @@ async function loadLibrary() {
   for (const key of Object.keys(PRESETS)) {
     if (Array.isArray(layouts[key])) {
       layouts[key] = layouts[key].map(item => {
-        if (!assetFor(item) || !Number.isFinite(item.zoom) || !Number.isFinite(item.x) || !Number.isFinite(item.y)) return null;
-        return {...item, zoom: Math.min(2, Math.max(.1, item.zoom))};
+        if (!assetFor(item) || !Number.isFinite(item.zoom) || item.zoom <= 0 || !Number.isFinite(item.x) || !Number.isFinite(item.y)) return null;
+        return {...item, zoom: Math.min(2, item.zoom)};
       });
     }
   }

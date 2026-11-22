@@ -187,9 +187,11 @@ class Handler(SimpleHTTPRequestHandler):
             if framing is not None:
                 if not isinstance(framing, dict) or framing.get("size") not in ["25", "32", "58"]:
                     raise ValueError
-                for key, low, high in [("zoom", .1, 2), ("x", -70, 70), ("y", -70, 70)]:
+                for key, low, high in [("zoom", 0, 2), ("x", -70, 70), ("y", -70, 70)]:
                     value = framing.get(key)
                     if type(value) not in (int, float) or not math.isfinite(value) or not low <= value <= high:
+                        raise ValueError
+                    if key == "zoom" and value == 0:
                         raise ValueError
             preview = payload.get("preview")
             if preview is not None:

@@ -62,7 +62,7 @@
         <div id="placement-controls" class="controls" hidden>
           <label><span data-t="selectedFile">Visuel</span><select id="assignment"></select></label>
           <button id="edit-design" class="secondary" data-t="cropEditor">Cadrer et vérifier</button>
-          <label><span data-t="zoom">Taille</span><div class="range-row"><input id="zoom" type="range" min="10" max="200" step="1" value="100"><span class="number-unit"><input id="zoom-number" type="number" min="10" max="200" step="1" value="100" aria-label="Taille en pourcentage">%</span></div></label>
+          <label><span data-t="zoom">Taille</span><div class="range-row"><input id="zoom" type="range" min="0.000001" max="200" step="any" value="100"><span class="number-unit"><input id="zoom-number" type="number" min="0.000001" max="200" step="any" value="100" aria-label="Taille en pourcentage">%</span></div></label>
           <div class="offsets">
             <label><span data-t="horizontal">Horizontal</span><span class="number-unit"><input id="x-number" type="number" min="-70" max="70" step=".5" value="0" aria-label="Position horizontale">mm</span></label>
             <label><span data-t="vertical">Vertical</span><span class="number-unit"><input id="y-number" type="number" min="-70" max="70" step=".5" value="0" aria-label="Position verticale">mm</span></label>
@@ -85,7 +85,7 @@
   <div class="editor-header"><h2 data-t="cropEditor">Cadrer et vérifier</h2><button id="close-editor" class="text-button" data-t="close">Fermer</button></div>
   <p class="hint" data-t="dragCrop">Glissez l’image pour déplacer le cadrage. Vérifiez le texte dans le cercle intérieur.</p>
   <div id="editor-canvas" class="editor-canvas"></div>
-  <label class="editor-zoom"><span data-t="zoom">Taille</span><input id="editor-zoom" type="range" min="10" max="200" step="1"><span id="editor-zoom-value"></span></label>
+  <label class="editor-zoom"><span data-t="zoom">Taille</span><input id="editor-zoom" type="range" min="0.000001" max="200" step="any"><span id="editor-zoom-value"></span></label>
   <p id="editor-quality" class="hint"></p>
   <p id="editor-framing-help" class="hint" aria-live="polite"></p>
   <div class="editor-actions"><button id="editor-save-framing" class="primary" data-t="saveFraming">Enregistrer le cadrage</button><button id="editor-apply-all" class="secondary" data-t="applyCopies">Appliquer aux exemplaires de ce visuel</button><button id="editor-center" class="secondary" data-t="center">Recentrer</button><button id="editor-fit" class="secondary" data-t="qualityFit">Réduire pour atteindre 300 ppp</button></div>

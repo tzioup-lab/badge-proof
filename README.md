@@ -17,7 +17,7 @@ The first complete load prepares offline use. **Help and backups** shows when of
 
 ## Your library and backups
 
-Artwork stays in browser storage on your device. The site does not upload your designs or backups. Save a `.badgeproof` backup through **Help and backups → Back up library**. It includes original files, size tags, saved framing, layouts, quantities and language. Keep a copy somewhere outside browser storage.
+Artwork stays in browser storage on your device. The site does not upload your designs or backups. Save a `.badgeproof` backup through **Help and backups → Back up library**. It includes original files, size tags, saved framing, layouts, quantities and language. Keep a copy somewhere outside browser storage. Backups use a ZIP-based format with a 4 GiB total limit and up to 10,000 designs (64 MiB each); oversized exports are refused before download. Legacy JSON backups can still be imported.
 
 **Clearing site data can delete the library.** Browser storage protection can be requested in Help and backups, but it does not replace a backup. Changing browser, profile, device or Safari Dock app can open a separate library.
 

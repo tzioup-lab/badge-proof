@@ -27,7 +27,7 @@ The regression reproduced two-page overflow with a Letter override; A4 with zero
 - `bootstrap_check.py`: isolated dependency repair and Mac launcher simulation.
 - `tests/saved-framing.cjs`: per-size disk persistence, new-copy and batch reuse, thumbnail framing, invalid-value rejection and original byte preservation.
 - `tests/print-settings.cjs`: bilingual print reminder, cancellation, mobile layout, reproduced Letter overflow and correct one-/two-page A4 output.
-- `npm test`: starts its own temporary server/library and runs both browser checks.
+- `npm test`: starts its own temporary server/library and runs the archive, saved-framing, print-settings and browser-app checks.
 
 Earlier broad integration checks were performed in the development workspace. Their private artwork and machine-specific scripts are not included in this repository.
 
@@ -35,6 +35,27 @@ Earlier broad integration checks were performed in the development workspace. Th
 
 - Run the Windows launcher on Windows hardware, including the missing-Python path.
 - Complete an actual Python installation on a clean Mac; the installer flow was simulated locally.
-- Check browsers other than the locally exercised Chrome build.
 - Print the updated workflow on physical hardware, measure the scale bar and press a badge.
 - Inspect lettering, contrast and important detail placement for each design; numerical resolution does not prove visual suitability.
+
+## Browser app release (2026-11-22)
+
+The free browser route replaces the proposed paid Mac-signing route. Installation and update instructions are in the README. Nothing is uploaded from the design library.
+
+`tests/browser-app.cjs` serves the production static build under `/badge-proof/` and uses synthetic files in isolated browser profiles. Locally exercised Chrome and WebKit (Safari engine); GitHub Checks also runs Chromium, Firefox and WebKit on Linux.
+
+Verified behaviors:
+
+- Browser library persistence and byte-identical PNG/PDF originals; per-size reusable framing; quantities and multipage layouts.
+- Atomic source/metadata storage as binary buffers. A reproducible WebKit Blob-write error motivated this storage choice. Schema-v1 development records upgrade with original hashes and framing intact; no v1 schema was publicly deployed.
+- Original disk-library export to browser import without deleting the source, including original hashes and saved framing.
+- New ZIP-based `.badgeproof` export/import, legacy JSON import, damaged-file rejection and standard Python ZIP-reader interoperability. `tests/archive.cjs` checks a synthetic archive exceeding 512 MiB and rejects ZIP32 overflow before download.
+- Native IndexedDB transaction aborts during initial import and restore: no partial entries after reload, previous originals/crops retained. This simulates interrupted writes, not physical disk exhaustion.
+- Panorama fit-safe framing below 10% survives saved framing and backup roundtrip.
+- Offline document reload, original loading, clean PDF export and direct-print document generation. Exported pages measure 210 × 297 mm. WebKit offline tests disconnect the test origin's sockets, avoiding a driver-specific offline-toggle navigation error.
+- URL import when CORS permits; clear download/import fallback when blocked. The expected WebKit access-control error is isolated in the test; other page errors fail it.
+- Two sequential application versions: background detection, Later, explicit reload, retained originals/layouts, print guard and another window's unsaved input retained.
+- An integrity-invalid next release is refused; the previous version still opens offline.
+- English/French UI and 390 px viewport without horizontal overflow. No artwork POST requests occur.
+
+These engine checks do not certify Safari's Add to Dock flow, a Windows app installation or actual printer output. Those remain manual acceptance checks. The optional Python-launcher checks above are separate from the browser app, which needs no Python.

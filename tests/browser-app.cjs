@@ -53,6 +53,7 @@ async function restore(page, file) {
     if (networkDown) {req.socket.destroy(); return;}
     const url = new URL(req.url, "http://local");
     if (!url.pathname.startsWith("/badge-proof/")) {res.writeHead(404); res.end(); return;}
+    if (url.pathname === "/badge-proof/seed.html") {res.writeHead(200, {"Content-Type": "text/html"}); res.end("<!doctype html><title>Schema migration fixture</title>"); return;}
     const relative = url.pathname.slice("/badge-proof/".length) || "index.html";
     const file = path.resolve(current, relative);
     if (!file.startsWith(current + path.sep) || !fs.existsSync(file) || !fs.statSync(file).isFile()) {res.writeHead(404);res.end();return;}

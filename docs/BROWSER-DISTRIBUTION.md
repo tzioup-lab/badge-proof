@@ -1,6 +1,6 @@
 # Browser distribution decision
 
-Accepted 2026-11-22. The user selected an installable browser app after declining paid Apple Developer membership. No paid signing or hosting is part of this route.
+Accepted and shipped 2026-11-22 in [PR #3](https://github.com/tzioup-lab/badge-proof/pull/3). See [current status and next steps](STATUS.md). The user selected an installable browser app after declining paid Apple Developer membership. No paid signing or hosting is part of this route.
 
 ## Boundaries
 

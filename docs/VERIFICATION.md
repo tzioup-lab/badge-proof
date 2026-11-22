@@ -1,6 +1,6 @@
 # Verification baseline
 
-Recorded on 2026-11-22. This repository contains the standalone composer, extracted after the saved-framing fix.
+Last reconciled 2026-11-22. Browser app v0.2.0 is published. [Current status and next steps](STATUS.md) distinguishes shipped work from manual acceptance. The earlier local-tool evidence below remains relevant to its shared composer.
 
 ## Verified locally on macOS / Chrome
 
@@ -31,12 +31,16 @@ The regression reproduced two-page overflow with a Letter override; A4 with zero
 
 Earlier broad integration checks were performed in the development workspace. Their private artwork and machine-specific scripts are not included in this repository.
 
-## Remaining acceptance checks
+## Remaining manual acceptance
 
-- Run the Windows launcher on Windows hardware, including the missing-Python path.
-- Complete an actual Python installation on a clean Mac; the installer flow was simulated locally.
-- Print the updated workflow on physical hardware, measure the scale bar and press a badge.
+[Issue #2](https://github.com/tzioup-lab/badge-proof/issues/2) owns the browser-route sign-off:
+
+- Safari Add to Dock on macOS Sonoma 14+ and Chrome/Edge installation on Windows, including offline reopening and backup import.
+- A subsequent deployed version: defer then accept its update on each OS; verify retained originals, framing and settings.
+- Physical printing: measure the 50 mm bar and relevant circles, check page count, cut and press a badge.
 - Inspect lettering, contrast and important detail placement for each design; numerical resolution does not prove visual suitability.
+
+Optional local-launcher limitations are separate: the missing-Python Windows flow has not run on Windows hardware, and an actual clean-Mac Python installation has not been performed (the latter was simulated). Neither is required by the browser app.
 
 ## Browser app release (2026-11-22)
 
@@ -59,3 +63,12 @@ Verified behaviors:
 - English/French UI and 390 px viewport without horizontal overflow. No artwork POST requests occur.
 
 These engine checks do not certify Safari's Add to Dock flow, a Windows app installation or actual printer output. Those remain manual acceptance checks. The optional Python-launcher checks above are separate from the browser app, which needs no Python.
+
+## Published release evidence
+
+- [Merged-main Checks](https://github.com/tzioup-lab/badge-proof/actions/runs/45056554078): Chromium, Firefox and WebKit passed for application commit `29cb01d`.
+- [Pages publication](https://github.com/tzioup-lab/badge-proof/actions/runs/45056659110): succeeded for that checked commit.
+- Live HTTPS v0.2.0: isolated Chrome profile, synthetic PNG import, seven-copy/two-page 58 mm layout, offline reload and clean PDF export. Both exported pages measured 210 × 297 mm; zero page errors and artwork POST requests. Hosted `.mjs` used `text/javascript`.
+- Existing local interface: portable backup exported and original SHA-256 values checked. Every disk-library file hash remained unchanged. User-library import into the hosted browser app was not confirmed; automated migration coverage above used isolated test data.
+
+Evidence is also linked from [delivery issue #1](https://github.com/tzioup-lab/badge-proof/issues/1). No real artwork or portable library backup is committed to this public repository.

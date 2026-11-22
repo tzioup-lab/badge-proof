@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Composeur de badges</title>
+<link rel="stylesheet" href="composer.css">
+</head>
+<body>
+<div id="app">
+<header class="app-header">
+  <div><span class="brand">STICKER STUDIO</span><h1 data-t="title">Composer une planche</h1></div>
+  <label class="language"><span data-t="language">Langue</span><select id="language"><option value="fr">Français</option><option value="en">English</option></select></label>
+</header>
+<main>
+  <details class="library-panel" id="library-disclosure" open>
+    <summary class="panel-heading"><h2 data-t="library">Bibliothèque</h2><span class="library-summary-end"><span id="asset-count" class="count"></span><span class="library-chevron" aria-hidden="true">⌄</span></span></summary>
+    <div class="library-body">
+    <p class="hint" data-t="librarySaved">Vos visuels sont enregistrés sur cet ordinateur.</p>
+    <label id="drop-zone" class="drop-zone">
+      <span class="add-icon" aria-hidden="true">+</span>
+      <strong data-t="choose">Ajouter des visuels</strong>
+      <span class="hint" data-t="dropHint">ou déposer des fichiers ici</span>
+      <span class="formats">PNG · JPEG · WebP · PDF</span>
+      <input id="files" type="file" accept="image/png,image/jpeg,image/webp,application/pdf,.pdf" multiple>
+    </label>
+    <details class="url-import"><summary data-t="fromUrl">Ajouter depuis un lien</summary>
+      <form id="url-form"><label><span class="sr-only" data-t="urlLabel">Lien direct vers une image ou un PDF</span><input id="design-url" type="url" required placeholder="https://…"></label><button class="secondary" data-t="importUrl">Importer</button></form>
+      <p class="hint" data-t="urlHelp">Utilisez le lien direct vers le fichier image ou PDF.</p>
+    </details>
+    <label class="search-label"><span class="sr-only" data-t="search">Rechercher un visuel</span><input id="search" type="search" placeholder="Rechercher un visuel"></label>
+    <label class="filter-label"><span class="sr-only" data-t="filterSize">Filtrer par taille</span><select id="size-filter"></select></label>
+    <p class="hint library-instruction" data-t="libraryHelp">Glissez un visuel vers un cercle, ou sélectionnez un cercle puis cliquez sur un visuel.</p>
+    <div id="assets" class="assets"></div>
+    <p id="library-empty" class="empty-library" data-t="emptyLibrary">Ajoutez vos premiers visuels. Vous les retrouverez ici lors de votre prochaine visite.</p>
+    <div class="batch-controls"><p id="batch-total" class="hint"></p><button id="build-batch" class="secondary" data-t="buildBatch">Composer ces quantités</button><p class="hint" data-t="batchHelp">Remplace la planche de ce format. Des pages sont ajoutées si nécessaire.</p></div>
+    </div>
+  </details>
+  <section class="workspace">
+    <div class="sheet-toolbar">
+      <div class="format-control"><label for="preset" data-t="badgeSize">Taille du badge</label><select id="preset"><option value="25">25 mm</option><option value="32">32 mm</option><option value="58">58 mm</option></select><span id="preset-detail" class="hint"></span></div>
+      <div class="export-actions"><button id="export" class="secondary" data-t="savePdf">Enregistrer le PDF</button><button id="print" class="primary" data-t="print">Imprimer</button></div>
+    </div>
+    <div id="status" class="status" role="status" aria-live="polite"></div>
+    <p id="sheet-quality" class="hint sheet-quality" aria-live="polite"></p>
+    <div class="composition">
+      <div class="preview-panel">
+        <div class="preview-toolbar"><span id="sheet-count"></span><label><input type="checkbox" id="zones" checked><span data-t="showZones">Afficher les zones</span></label></div>
+        <nav class="page-navigation" aria-label="Pages"><button id="previous-page" aria-label="Page précédente">‹</button><span id="page-count"></span><button id="next-page" aria-label="Page suivante">›</button><button id="add-page" class="text-button" data-t="addPage">Ajouter une page</button></nav>
+        <div id="sheet" class="sheet"><span class="paper-label">A4 · 210 × 297 mm</span><div class="scale"><span>50 mm</span></div></div>
+        <div class="sheet-footer"><span id="legend" class="hint"></span><button id="clear" class="text-button" data-t="clear">Vider cette planche</button></div>
+      </div>
+      <aside class="inspector">
+        <div class="inspector-heading"><span class="selection-dot"></span><h2 id="selected-title"></h2></div>
+        <p id="inspector-empty" class="hint" data-t="selectHint">Choisissez un visuel dans la bibliothèque pour ce cercle.</p>
+        <div id="placement-controls" class="controls" hidden>
+          <label><span data-t="selectedFile">Visuel</span><select id="assignment"></select></label>
+          <button id="edit-design" class="secondary" data-t="cropEditor">Cadrer et vérifier</button>
+          <label><span data-t="zoom">Taille</span><div class="range-row"><input id="zoom" type="range" min="10" max="200" step="1" value="100"><span class="number-unit"><input id="zoom-number" type="number" min="10" max="200" step="1" value="100" aria-label="Taille en pourcentage">%</span></div></label>
+          <div class="offsets">
+            <label><span data-t="horizontal">Horizontal</span><span class="number-unit"><input id="x-number" type="number" min="-70" max="70" step=".5" value="0" aria-label="Position horizontale">mm</span></label>
+            <label><span data-t="vertical">Vertical</span><span class="number-unit"><input id="y-number" type="number" min="-70" max="70" step=".5" value="0" aria-label="Position verticale">mm</span></label>
+          </div>
+          <div class="placement-actions"><button id="reset" class="secondary" data-t="center">Recentrer</button><button id="fit-safe" class="secondary" data-t="fitSafe">Tout dans la zone sûre</button></div>
+          <p id="resolution" class="hint"></p>
+          <div id="quality-advice" class="quality-advice"></div>
+          <button id="quality-fit" class="text-button" data-t="qualityFit">Réduire pour atteindre 300 ppp</button>
+          <fieldset class="size-tags"><legend data-t="designedFor">Conçu pour</legend><label><input type="checkbox" value="25" data-size-tag>25 mm</label><label><input type="checkbox" value="32" data-size-tag>32 mm</label><label><input type="checkbox" value="58" data-size-tag>58 mm</label></fieldset>
+          <button id="repeat" class="secondary" data-t="repeat">Remplir les cercles vides</button>
+          <button id="remove" class="text-button danger" data-t="removeSlot">Retirer de la planche</button>
+        </div>
+        <div class="print-note"><h3 data-t="printSettings">Avant d’imprimer</h3><p class="hint" data-t="printHelp">A4 portrait (pas Letter) · Marges : Aucune · Échelle personnalisée : 100 %. Désactivez les en-têtes/pieds de page. Vérifiez la barre de 50 mm.</p><label class="check-label"><input type="checkbox" id="cut" checked><span data-t="cutGuides">Repères de découpe</span></label><button id="proof" class="text-button" data-t="proof">Télécharger une épreuve avec les zones</button></div>
+      </aside>
+    </div>
+  </section>
+</main>
+</div>
+<dialog id="design-editor">
+  <div class="editor-header"><h2 data-t="cropEditor">Cadrer et vérifier</h2><button id="close-editor" class="text-button" data-t="close">Fermer</button></div>
+  <p class="hint" data-t="dragCrop">Glissez l’image pour déplacer le cadrage. Vérifiez le texte dans le cercle intérieur.</p>
+  <div id="editor-canvas" class="editor-canvas"></div>
+  <label class="editor-zoom"><span data-t="zoom">Taille</span><input id="editor-zoom" type="range" min="10" max="200" step="1"><span id="editor-zoom-value"></span></label>
+  <p id="editor-quality" class="hint"></p>
+  <p id="editor-framing-help" class="hint" aria-live="polite"></p>
+  <div class="editor-actions"><button id="editor-save-framing" class="primary" data-t="saveFraming">Enregistrer le cadrage</button><button id="editor-apply-all" class="secondary" data-t="applyCopies">Appliquer aux exemplaires de ce visuel</button><button id="editor-center" class="secondary" data-t="center">Recentrer</button><button id="editor-fit" class="secondary" data-t="qualityFit">Réduire pour atteindre 300 ppp</button></div>
+  <p class="hint" data-t="visualCheck">La résolution est vérifiée. Le texte, le contraste et les détails importants restent à contrôler visuellement.</p>
+</dialog>
+<dialog id="print-setup" aria-labelledby="print-setup-title" aria-describedby="print-setup-intro">
+  <h2 id="print-setup-title" data-t="printSetupTitle">Imprimer à la taille exacte</h2>
+  <p id="print-setup-intro" class="hint" data-t="printSetupIntro">Dans « Plus de paramètres », vérifiez ces valeurs dans la fenêtre suivante.</p>
+  <dl class="print-settings-list">
+    <div><dt data-t="printPaper">Papier</dt><dd data-t="printPaperValue">A4 · 210 × 297 mm · Portrait (pas Letter)</dd></div>
+    <div><dt data-t="printMargins">Marges</dt><dd data-t="printMarginsValue">Aucune / None</dd></div>
+    <div><dt data-t="printScale">Échelle</dt><dd data-t="printScaleValue">Personnalisée : 100 % (pas « Par défaut »)</dd></div>
+    <div><dt data-t="printPerSheet">Pages par feuille</dt><dd>1</dd></div>
+    <div><dt data-t="printHeaders">En-têtes / pieds de page</dt><dd data-t="printOff">Désactivés</dd></div>
+  </dl>
+  <p id="print-page-total" class="print-page-total"></p>
+  <p class="hint" data-t="printCheckBar">La barre de 50 mm doit rester sur la même page que les badges et mesurer 50 mm après impression. Si elle passe sur une autre page, vérifiez d’abord le format A4.</p>
+  <div class="print-setup-actions"><button id="cancel-print" class="secondary" data-t="cancelPrint">Annuler</button><button id="continue-print" class="primary" data-t="continuePrint">Ouvrir la fenêtre d’impression</button></div>
+</dialog>
+<div id="print-output" aria-hidden="true"></div>
+<script src="vendor/pdf-lib.min.js"></script>
+<script type="module" src="composer.js"></script>
+</body>
+</html>

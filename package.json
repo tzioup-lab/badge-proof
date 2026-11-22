@@ -1,0 +1,15 @@
+{
+  "name": "badge-proof",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local A4 button-badge print sheet composer",
+  "scripts": {
+    "test": "node tests/run.cjs"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

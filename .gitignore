@@ -1,0 +1,11 @@
+.library/
+.runtime/
+__pycache__/
+*.py[cod]
+.DS_Store
+.env
+.env.*
+node_modules/
+test-results/
+playwright-report/
+*.log

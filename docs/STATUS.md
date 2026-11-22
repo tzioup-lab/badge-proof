@@ -4,9 +4,11 @@ Last reconciled: 2026-11-22. Start here when resuming maintenance.
 
 ## Shipped
 
-**[Badge Proof v0.2.0](https://tzioup-lab.github.io/badge-proof/)** is live on free GitHub Pages. [Implementation PR #3](https://github.com/tzioup-lab/badge-proof/pull/3) is merged and [delivery issue #1](https://github.com/tzioup-lab/badge-proof/issues/1) is closed.
+**[Badge Proof v0.3.0](https://tzioup-lab.github.io/badge-proof/)** is live on free GitHub Pages. [Implementation PR #3](https://github.com/tzioup-lab/badge-proof/pull/3) is merged and [delivery issue #1](https://github.com/tzioup-lab/badge-proof/issues/1) is closed.
 
 The app imports supplied artwork, saves a local library and per-size framing, composes quantities across A4 pages, and exports clean/guided PDFs or prepares direct printing. It supports 25, 32 and 58 mm presets and French/English. It does not generate artwork or slogans; that remains a separate project.
+
+The header offers an optional six-step guided walkthrough and independent written Help/FAQs in French and English. Upload and board controls are compact at phone/tablet widths. [Guidance issue #5](https://github.com/tzioup-lab/badge-proof/issues/5) tracks this v0.3.0 change.
 
 Offline preparation, portable backups and deferred app updates are implemented. The optional disk-backed local launcher remains available. Private originals and backups are excluded from the repository and published site.
 
@@ -17,7 +19,7 @@ Offline preparation, portable backups and deferred app updates are implemented. 
 | Distribution | Free installable browser app; no paid Apple membership, signing or required hosting subscription. |
 | Designs | Local to each browser/profile or installed-app storage context; no account, cloud library or automatic cross-device sync. |
 | Transfer | Explicit `.badgeproof` export/import, including originals, framing, size tags, sheet layouts, quantities and language. Import updates matching designs, retains unrelated designs and replaces sheet settings. |
-| Existing local tool | Preserve its `.library`; export through its updated Help and backups UI. No silent cross-origin migration. |
+| Existing local tool | Preserve its `.library`; export through its updated Help UI. No silent cross-origin migration. |
 | App updates | Check automatically; a complete new version waits for the user's reload. Preserve libraries and other windows' work. |
 | URL import | Direct browser access when the source permits it; otherwise download/import a file. No public proxy. |
 | Printing | Preserve physical geometry. Show A4 / margins None / Custom 100% guidance; the app cannot enforce driver settings. |
@@ -32,7 +34,7 @@ Changing browser/profile or using Safari's separate Dock app can open a differen
 
 ## Questions and candidates, not committed scope
 
-There is no unanswered product decision blocking v0.2.0. The user asked how libraries work; the explanation was local libraries with manual backup/transfer, not a request to add cloud sync.
+There is no unanswered product decision blocking v0.3.0. The user asked how libraries work; the explanation was local libraries with manual backup/transfer, not a request to add cloud sync.
 
 - If automatic cross-device access becomes a requirement, decide privacy, accounts, hosting cost and conflict behavior before proposing sync. Do not quietly introduce uploads.
 - Selective design transfer or separate library/settings restore could make repeated transfers easier. Currently restore replaces sheet settings; no selective mode is implemented or promised.

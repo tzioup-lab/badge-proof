@@ -8,6 +8,7 @@ const {spawnSync} = require("node:child_process");
 const engine = process.env.BADGE_PROOF_ENGINE || "chromium";
 const browserType = require("playwright")[engine];
 const {PDFDocument} = require("../vendor/pdf-lib.min.js");
+const checkGuidance = require("./guidance.cjs");
 
 const root = path.resolve(__dirname, "..");
 const archiveModule = import("data:text/javascript;base64," + fs.readFileSync(path.join(root, "archive.js")).toString("base64"));
@@ -45,7 +46,7 @@ async function restore(page, file) {
 
 (async () => {
   const temp = fs.mkdtempSync(path.join(os.tmpdir(), "badge-proof-web-test-"));
-  const artifacts = path.join(root, "test-results"); fs.mkdirSync(artifacts, {recursive: true});
+  const artifacts = path.join(root, "test-results", engine); fs.mkdirSync(artifacts, {recursive: true});
   let current = path.join(temp, "site-v1"); build(current);
   let networkDown = false;
   const mime = {".html": "text/html", ".js": "text/javascript", ".mjs": "text/javascript", ".css": "text/css", ".png": "image/png", ".webmanifest": "application/manifest+json"};
@@ -98,6 +99,7 @@ async function restore(page, file) {
     await page.locator("#close-editor").click();
     await page.locator(".slot").nth(1).click(); await page.locator(".asset").click();
     assert.equal(await page.locator("#zoom-number").inputValue(), "141");
+    await checkGuidance(page, artifacts);
     const firstBackup = path.join(temp, "first.badgeproof");
     let saved = await backup(page, firstBackup);
     assert.equal(hash(Buffer.from(saved.designs[0].original, "base64")), hash(imageBytes));
@@ -266,7 +268,7 @@ async function restore(page, file) {
     await other.locator(".url-import summary").click();
     await other.locator("#design-url").fill("https://example.com/unfinished-input");
     const nextSource = path.join(temp, "next-source"); fs.mkdirSync(nextSource);
-    for (const name of ["build_site.py", "package.json", "index.html", "composer.js", "composer.css", "presets.js", "quality.js", "library-store.js", "backup.js", "archive.js", "app-shell.js", "service-worker.js", "manifest.webmanifest", "vendor", "icons"]) {
+    for (const name of ["build_site.py", "package.json", "index.html", "composer.js", "composer.css", "presets.js", "quality.js", "library-store.js", "backup.js", "archive.js", "app-shell.js", "guidance.js", "service-worker.js", "manifest.webmanifest", "vendor", "icons"]) {
       fs.cpSync(path.join(root, name), path.join(nextSource, name), {recursive: true});
     }
     const pkg = JSON.parse(fs.readFileSync(path.join(nextSource, "package.json"))); pkg.version = versionAfter(1);
@@ -279,6 +281,11 @@ async function restore(page, file) {
     await page.locator("#dismiss-update").click();
     assert.equal(await page.locator("#update-banner").isVisible(), false);
     await page.locator("#help").click(); await page.locator("#check-updates").click(); await page.locator("#close-help").click();
+    await page.locator("#start-walkthrough").click();
+    await page.locator("#apply-update").click();
+    assert.match(await page.locator("#update-text").innerText(), /Terminez/);
+    assert.equal(await page.locator("#app-version").innerText(), "v" + initialVersion);
+    await page.locator("#tour-close").click();
     await page.evaluate(() => window.dispatchEvent(new Event("beforeprint")));
     await page.locator("#apply-update").click();
     assert.match(await page.locator("#update-text").innerText(), /Terminez/);

@@ -1,6 +1,6 @@
 # Verification baseline
 
-Last reconciled 2026-11-22. Browser app v0.2.0 is published. [Current status and next steps](STATUS.md) distinguishes shipped work from manual acceptance. The earlier local-tool evidence below remains relevant to its shared composer.
+Last reconciled 2026-11-22. Browser app v0.3.0 includes guided help and the compact workspace. [Current status and next steps](STATUS.md) distinguishes shipped work from manual acceptance. The earlier local-tool evidence below remains relevant to its shared composer.
 
 ## Verified locally on macOS / Chrome
 
@@ -72,3 +72,11 @@ These engine checks do not certify Safari's Add to Dock flow, a Windows app inst
 - Existing local interface: portable backup exported and original SHA-256 values checked. Every disk-library file hash remained unchanged. User-library import into the hosted browser app was not confirmed; automated migration coverage above used isolated test data.
 
 Evidence is also linked from [delivery issue #1](https://github.com/tzioup-lab/badge-proof/issues/1). No real artwork or portable library backup is committed to this public repository.
+
+## Guided help and compact workspace (v0.3.0)
+
+[Issue #5](https://github.com/tzioup-lab/badge-proof/issues/5) defines this change. The six-step nonmodal walkthrough is optional and does not write library or sheet data. Written Help is independent and retains backup/update controls. General design advice moved into Help to reduce space above the sheet; actionable low-resolution warnings remain visible.
+
+`tests/guidance.cjs`, called by the production-build browser suite, checks French/English tour navigation, Escape/focus restoration, independent FAQ access, keyboard file-picker access, unchanged saved preferences, live warnings, 320/390/768/1000/1440 px layouts and exclusion from print output. The upload box measures about 61 px versus the previous roughly 130 px. The update test also refuses reload while the walkthrough is open. New guidance assets are included in the offline asset manifest; the existing offline, backup, multi-window update, corrupt-update and exact-A4 print tests continue to run.
+
+Local Chrome and WebKit runs passed these behaviors and the existing regressions. GitHub Checks runs all three engines and retains synthetic screenshots under `test-results/<engine>/`. OS installation and physical printer acceptance remain #2; this UI change does not complete those runs.

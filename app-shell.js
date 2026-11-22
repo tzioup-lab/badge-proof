@@ -12,7 +12,7 @@ export async function startShell({local, t, canReload}) {
   let requestedReload = false;
   let message = local ? "localUpdates" : "checkingUpdates";
   const render = () => {
-    $("#app-version").textContent = "v" + (BUILD.startsWith("__") ? "0.2.0" : BUILD.split("-")[0]);
+    $("#app-version").textContent = "v" + (BUILD.startsWith("__") ? "0.3.0" : BUILD.split("-")[0]);
     $("#shell-status").textContent = t(message);
     $("#update-banner").hidden = !registration?.waiting || dismissed;
     $("#update-text").textContent = t(message === "finishWork" ? "finishWork" : "updateReady");

@@ -4,6 +4,7 @@ import {inspectPDFPage, qualityAtSize} from "./quality.js";
 import {openLibrary, importURL, base64Bytes} from "./library-store.js";
 import {makeBackup, readBackup} from "./backup.js";
 import {startShell} from "./app-shell.js";
+import {startGuidance} from "./guidance.js";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL("./vendor/pdf.worker.mjs", import.meta.url).href;
 const {
@@ -18,13 +19,16 @@ let storageFailed = false;
 let printing = false;
 let shell;
 let stagedBackup;
+let guidance;
 const translations = {
   title: ["Composer une planche", "Compose a print sheet"],
   language: ["Langue", "Language"],
   library: ["Bibliothèque", "Library"],
   librarySaved: ["Vos visuels sont enregistrés sur cet ordinateur.", "Your designs are saved on this computer."],
   browserLibrary: ["Enregistrés dans ce navigateur, sur cet appareil. Aucun visuel n’est envoyé au site.", "Saved in this browser on this device. Artwork is not uploaded to the site."],
-  help: ["Aide et sauvegardes", "Help and backups"],
+  help: ["Aide", "Help"],
+  helpTitle: ["Aide et questions fréquentes", "Help and FAQs"],
+  appStatusTitle: ["Application et mises à jour", "App and updates"],
   installApp: ["Installer l’application", "Install app"],
   storageUnavailable: ["Le stockage du navigateur est indisponible. Utilisez une fenêtre normale avec le stockage des sites autorisé.", "Browser storage is unavailable. Use a normal window with site storage allowed."],
   storageFull: ["Le navigateur n’a plus assez de place. Sauvegardez la bibliothèque puis libérez de l’espace sur l’appareil.", "The browser has insufficient storage. Back up the library, then free some space on the device."],
@@ -48,7 +52,6 @@ const translations = {
   storageProtected: ["Le navigateur a accordé la conservation des données. Gardez aussi une sauvegarde.", "The browser granted persistent storage. Keep a backup too."],
   storageNotProtected: ["La conservation n’a pas été accordée. Sauvegardez régulièrement la bibliothèque.", "Persistent storage was not granted. Back up the library regularly."],
   migrationHelp: ["Pour passer de l’ancienne application locale au site : téléchargez sa sauvegarde ici, puis importez ce fichier sur le site. Vos fichiers locaux restent conservés.", "To move from the old local app to the website: download its backup here, then import that file on the website. Your local files are kept."],
-  installHelp: ["Utilisez le site directement ou installez une icône : Chrome/Edge → Installer dans le menu ; Safari sur Mac (Sonoma 14 ou plus récent) → Fichier → Ajouter au Dock. Installez avant d’ajouter vos visuels ; une autre application ou un autre navigateur peut avoir sa propre bibliothèque. Importez votre sauvegarde si elle est vide. Après le premier chargement complet, l’application peut fonctionner hors ligne.", "Use the website directly, or install an icon: Chrome/Edge → Install in the browser menu; Safari on Mac (Sonoma 14 or newer) → File → Add to Dock. Install before adding designs; a different app or browser may have its own library. Import your backup if it is empty. After the first complete load, the app can work offline."],
   checkUpdates: ["Vérifier les mises à jour", "Check for updates"],
   updateReady: ["Une nouvelle version est prête. Vos visuels et planches seront conservés.", "A new version is ready. Your designs and sheets will be kept."],
   applyUpdate: ["Recharger avec la nouvelle version", "Reload with the new version"],
@@ -501,6 +504,7 @@ function render() {
   $("#export-backup").disabled = busy || !library;
   $("#import-backup").disabled = busy || !library;
   shell?.render();
+  guidance?.render();
   $("#search").placeholder = t("search");
   const previousFilter = $("#size-filter").value;
   $("#size-filter").replaceChildren(new Option(t("allDesigns"), "all"), new Option(t("currentSize"), "current"),
@@ -520,6 +524,7 @@ function render() {
     ? lowResolution + (language === "fr" ? " exemplaire(s) sous 300 ppp. Sélectionnez-les pour ajuster la taille ou choisir une meilleure source." : " copy/copies below 300 PPI. Select them to reduce size or choose a better source.")
     : t("visualCheck");
   $("#sheet-quality").classList.toggle("warning", lowResolution > 0);
+  $("#sheet-quality").hidden = lowResolution === 0;
   $("#preset-detail").textContent = language === "fr"
     ? "Découpe " + format.cut + " mm · Zone sûre " + format.safe + " mm"
     : format.cut + " mm cut · " + format.safe + " mm safe circle";
@@ -1176,9 +1181,13 @@ async function loadLibrary() {
     }
   }
   status(failed.length ? t("failure") + " " + failed.join(" · ") : "", failed.length > 0);
-  $("#library-disclosure").open = window.innerWidth > 750 || assets.length === 0;
+  $("#library-disclosure").open = window.innerWidth > 900 || assets.length === 0;
 }
 
+guidance = startGuidance({getLanguage: () => language, getPreset: preset});
+$("#drop-zone").addEventListener("keydown", event => {
+  if (event.key === "Enter" || event.key === " ") {event.preventDefault(); $("#files").click();}
+});
 $("#help").onclick = () => $("#app-help").showModal();
 $("#close-help").onclick = () => $("#app-help").close();
 $("#export-backup").onclick = async () => {

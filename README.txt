@@ -1,3 +1,44 @@
+BADGE PROOF — VERSION NAVIGATEUR / BROWSER VERSION
+
+https://tzioup-lab.github.io/badge-proof/
+
+Ouvrez ce lien : aucun compte, terminal ni Python n'est nécessaire.
+Vous pouvez installer une icône via Chrome/Edge, ou dans Safari sur Mac
+(Sonoma 14 ou plus récent) : Fichier → Ajouter au Dock.
+Installez avant d'ajouter vos visuels. Un autre navigateur ou une application
+Safari peut avoir sa propre bibliothèque ; importez votre sauvegarde si
+elle est vide.
+
+Les visuels restent dans le navigateur sur cet appareil. Ils ne sont pas
+envoyés au site. Aide et sauvegardes permet de télécharger une sauvegarde
+complète et de l'importer ailleurs. Effacer les données du site peut effacer
+la bibliothèque : conservez une sauvegarde hors du navigateur.
+
+Après le premier chargement complet, l'application peut fonctionner hors
+ligne. Consultez Aide et sauvegardes pour vérifier qu'elle est prête.
+Une mise à jour complète attend votre accord pour recharger l'application ;
+votre travail et vos visuels sont conservés. Vous pouvez choisir Plus tard.
+
+Certains sites bloquent l'import depuis un lien : téléchargez le fichier
+puis ajoutez-le à la bibliothèque. Aucun proxy public n'est utilisé.
+
+ENGLISH
+Open the link above. No account, terminal or Python installation is needed.
+Install an icon through Chrome/Edge, or Safari on Mac (Sonoma 14+):
+File → Add to Dock. Install before adding designs. Different browsers and
+Safari apps can use separate libraries; import a backup if one looks empty.
+Artwork stays in browser storage on this device. Clearing site data may
+remove it. Help and backups saves originals, framing and sheet settings to
+a portable backup file. Keep a copy outside browser storage.
+After a complete initial load, file import, PDF export and printing work
+offline. Completed updates wait for Reload with the new version / Later.
+URL imports depend on the source site's browser-access rules. If blocked,
+download the file and add it instead.
+
+LOCAL LAUNCHER / LANCEUR LOCAL (OPTIONAL)
+The following instructions apply only to the original disk-backed copy.
+Les instructions suivantes concernent uniquement la copie locale originale.
+
 COMPOSEUR DE BADGES / BADGE SHEET COMPOSER
 
 Ouvrir / Open

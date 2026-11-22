@@ -42,8 +42,10 @@ async function run(file, env) {
     }
     assert.ok(ready, "Test server did not start. " + serverOutput);
     const env = {...process.env, BADGE_PROOF_TEST_URL: base, BADGE_PROOF_TEST_ARTIFACTS: artifacts};
+    await run("archive.cjs", env);
     await run("saved-framing.cjs", env);
     await run("print-settings.cjs", env);
+    await run("browser-app.cjs", env);
   } finally {
     if (server.exitCode === null && !launchError) {
       const stopped = new Promise(resolve => server.once("exit", resolve));

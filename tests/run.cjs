@@ -44,6 +44,7 @@ async function run(file, env) {
     const env = {...process.env, BADGE_PROOF_TEST_URL: base, BADGE_PROOF_TEST_ARTIFACTS: artifacts};
     await run("saved-framing.cjs", env);
     await run("print-settings.cjs", env);
+    await run("browser-app.cjs", env);
   } finally {
     if (server.exitCode === null && !launchError) {
       const stopped = new Promise(resolve => server.once("exit", resolve));

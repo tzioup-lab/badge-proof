@@ -3,20 +3,26 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#5835a7">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 <title>Composeur de badges</title>
 <link rel="stylesheet" href="composer.css">
 </head>
 <body>
 <div id="app">
 <header class="app-header">
-  <div><span class="brand">STICKER STUDIO</span><h1 data-t="title">Composer une planche</h1></div>
-  <label class="language"><span data-t="language">Langue</span><select id="language"><option value="fr">Français</option><option value="en">English</option></select></label>
+  <div><span class="brand">BADGE PROOF · <span id="app-version"></span></span><h1 data-t="title">Composer une planche</h1></div>
+  <div class="header-actions"><button id="install-app" class="secondary" data-t="installApp" hidden>Installer l’application</button><button id="help" class="secondary" data-t="help">Aide et sauvegardes</button><label class="language"><span data-t="language">Langue</span><select id="language"><option value="fr">Français</option><option value="en">English</option></select></label></div>
 </header>
+<p id="storage-error" class="fatal-error" role="alert" hidden></p>
+<section id="update-banner" class="update-banner" role="status" hidden><p id="update-text" data-t="updateReady">Une nouvelle version est prête.</p><button id="apply-update" class="primary" data-t="applyUpdate">Recharger avec la nouvelle version</button><button id="dismiss-update" class="secondary" data-t="later">Plus tard</button></section>
 <main>
   <details class="library-panel" id="library-disclosure" open>
     <summary class="panel-heading"><h2 data-t="library">Bibliothèque</h2><span class="library-summary-end"><span id="asset-count" class="count"></span><span class="library-chevron" aria-hidden="true">⌄</span></span></summary>
     <div class="library-body">
-    <p class="hint" data-t="librarySaved">Vos visuels sont enregistrés sur cet ordinateur.</p>
+    <p id="library-location" class="hint">Vos visuels sont enregistrés sur cet ordinateur.</p>
     <label id="drop-zone" class="drop-zone">
       <span class="add-icon" aria-hidden="true">+</span>
       <strong data-t="choose">Ajouter des visuels</strong>
@@ -99,6 +105,18 @@
   <p class="hint" data-t="printCheckBar">La barre de 50 mm doit rester sur la même page que les badges et mesurer 50 mm après impression. Si elle passe sur une autre page, vérifiez d’abord le format A4.</p>
   <div class="print-setup-actions"><button id="cancel-print" class="secondary" data-t="cancelPrint">Annuler</button><button id="continue-print" class="primary" data-t="continuePrint">Ouvrir la fenêtre d’impression</button></div>
 </dialog>
+<dialog id="app-help" aria-labelledby="app-help-title">
+  <div class="editor-header"><h2 id="app-help-title" data-t="help">Aide et sauvegardes</h2><button id="close-help" class="text-button" data-t="close">Fermer</button></div>
+  <h3 data-t="backupTitle">Votre bibliothèque reste sur cet appareil</h3>
+  <p class="hint" data-t="backupHelp"></p>
+  <div class="help-actions"><button id="export-backup" class="primary" data-t="exportBackup">Sauvegarder la bibliothèque</button><label id="import-backup-label" class="file-button"><span data-t="importBackup">Importer une sauvegarde</span><input id="import-backup" type="file" accept=".badgeproof,.json,application/json"></label><button id="protect-storage" class="secondary" data-t="protectStorage">Demander la conservation des données</button></div>
+  <p id="backup-status" class="hint" role="status"></p>
+  <p id="migration-help" class="hint" data-t="migrationHelp" hidden></p>
+  <hr>
+  <p class="hint" data-t="installHelp"></p>
+  <div class="help-actions"><button id="check-updates" class="secondary" data-t="checkUpdates">Vérifier les mises à jour</button><span id="shell-status" class="hint" role="status"></span></div>
+</dialog>
+<dialog id="backup-review" aria-labelledby="backup-review-title"><h2 id="backup-review-title" data-t="backupReview">Importer cette sauvegarde ?</h2><p id="backup-review-text" class="hint"></p><div class="help-actions"><button id="cancel-restore" class="secondary" data-t="cancel">Annuler</button><button id="confirm-restore" class="primary" data-t="restoreBackup">Importer</button></div></dialog>
 <div id="print-output" aria-hidden="true"></div>
 <script src="vendor/pdf-lib.min.js"></script>
 <script type="module" src="composer.js"></script>

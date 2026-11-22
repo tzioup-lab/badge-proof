@@ -1,6 +1,9 @@
 import * as pdfjs from "./vendor/pdf.mjs";
 import {PRESETS} from "./presets.js";
 import {inspectPDFPage, qualityAtSize} from "./quality.js";
+import {openLibrary, importURL, base64Bytes} from "./library-store.js";
+import {makeBackup, readBackup} from "./backup.js";
+import {startShell} from "./app-shell.js";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL("./vendor/pdf.worker.mjs", import.meta.url).href;
 const {
@@ -10,11 +13,51 @@ const {
 const MM = 72 / 25.4;
 const $ = selector => document.querySelector(selector);
 const assets = [];
+let library;
+let storageFailed = false;
+let printing = false;
+let shell;
+let stagedBackup;
 const translations = {
   title: ["Composer une planche", "Compose a print sheet"],
   language: ["Langue", "Language"],
   library: ["Bibliothèque", "Library"],
   librarySaved: ["Vos visuels sont enregistrés sur cet ordinateur.", "Your designs are saved on this computer."],
+  browserLibrary: ["Enregistrés dans ce navigateur, sur cet appareil. Aucun visuel n’est envoyé au site.", "Saved in this browser on this device. Artwork is not uploaded to the site."],
+  help: ["Aide et sauvegardes", "Help and backups"],
+  installApp: ["Installer l’application", "Install app"],
+  storageUnavailable: ["Le stockage du navigateur est indisponible. Utilisez une fenêtre normale avec le stockage des sites autorisé.", "Browser storage is unavailable. Use a normal window with site storage allowed."],
+  storageFull: ["Le navigateur n’a plus assez de place. Sauvegardez la bibliothèque puis libérez de l’espace sur l’appareil.", "The browser has insufficient storage. Back up the library, then free some space on the device."],
+  fileTooLarge: ["Choisissez un fichier de 64 Mo maximum.", "Choose a file up to 64 MB."],
+  invalidBackup: ["Sauvegarde invalide ou endommagée. La bibliothèque n’a pas été modifiée.", "Invalid or damaged backup. The library was not changed."],
+  urlUnsupported: ["Utilisez un lien HTTP ou HTTPS direct vers une image ou un PDF.", "Use a direct HTTP or HTTPS image or PDF link."],
+  urlBlocked: ["Ce site bloque la lecture depuis le navigateur, ou le fichier est inaccessible. Ouvrez le lien, téléchargez le fichier, puis ajoutez-le ici.", "This site blocks browser access, or the file is unavailable. Open the link, download the file, then add it here."],
+  backupTitle: ["Votre bibliothèque reste sur cet appareil", "Your library stays on this device"],
+  backupHelp: ["Le navigateur peut effacer les données d’un site, notamment si vous les supprimez dans ses réglages. Enregistrez une sauvegarde pour conserver vos originaux, cadrages et planches ou les transférer sur un autre appareil.", "The browser can clear site data, including when you clear it in settings. Save a backup to keep your originals, framing and sheets, or move them to another device."],
+  exportBackup: ["Sauvegarder la bibliothèque", "Back up library"],
+  importBackup: ["Importer une sauvegarde", "Import backup"],
+  backingUp: ["Préparation de la sauvegarde…", "Preparing backup…"],
+  backupSaved: ["Sauvegarde téléchargée. Gardez ce fichier en lieu sûr.", "Backup downloaded. Keep this file somewhere safe."],
+  readingBackup: ["Vérification de la sauvegarde…", "Checking backup…"],
+  backupReview: ["Importer cette sauvegarde ?", "Import this backup?"],
+  backupReviewHelp: ["{count} visuel(s). Les visuels portant le même identifiant seront mis à jour ; les autres seront conservés. Les planches, quantités et la langue de la sauvegarde remplaceront les réglages actuels.", "{count} design(s). Matching designs will be updated; other designs are kept. The backup’s sheets, quantities and language will replace the current settings."],
+  restoreBackup: ["Importer", "Import"],
+  restored: ["Sauvegarde importée.", "Backup imported."],
+  protectStorage: ["Demander la conservation des données", "Request persistent storage"],
+  storageProtected: ["Le navigateur a accordé la conservation des données. Gardez aussi une sauvegarde.", "The browser granted persistent storage. Keep a backup too."],
+  storageNotProtected: ["La conservation n’a pas été accordée. Sauvegardez régulièrement la bibliothèque.", "Persistent storage was not granted. Back up the library regularly."],
+  migrationHelp: ["Pour passer de l’ancienne application locale au site : téléchargez sa sauvegarde ici, puis importez ce fichier sur le site. Vos fichiers locaux restent conservés.", "To move from the old local app to the website: download its backup here, then import that file on the website. Your local files are kept."],
+  installHelp: ["Utilisez le site directement ou installez une icône : Chrome/Edge → Installer dans le menu ; Safari sur Mac (Sonoma 14 ou plus récent) → Fichier → Ajouter au Dock. Installez avant d’ajouter vos visuels ; une autre application ou un autre navigateur peut avoir sa propre bibliothèque. Importez votre sauvegarde si elle est vide. Après le premier chargement complet, l’application peut fonctionner hors ligne.", "Use the website directly, or install an icon: Chrome/Edge → Install in the browser menu; Safari on Mac (Sonoma 14 or newer) → File → Add to Dock. Install before adding designs; a different app or browser may have its own library. Import your backup if it is empty. After the first complete load, the app can work offline."],
+  checkUpdates: ["Vérifier les mises à jour", "Check for updates"],
+  updateReady: ["Une nouvelle version est prête. Vos visuels et planches seront conservés.", "A new version is ready. Your designs and sheets will be kept."],
+  applyUpdate: ["Recharger avec la nouvelle version", "Reload with the new version"],
+  later: ["Plus tard", "Later"],
+  offlineReady: ["Prête pour une utilisation hors ligne.", "Ready for offline use."],
+  checkingUpdates: ["Recherche d’une mise à jour…", "Checking for updates…"],
+  upToDate: ["Version à jour.", "Up to date."],
+  offlineUpdate: ["Mise à jour indisponible. La version installée reste utilisable.", "Update unavailable. The installed version remains usable."],
+  finishWork: ["Terminez l’opération en cours et fermez les fenêtres de réglages avant de mettre à jour.", "Finish the current operation and close settings dialogs before updating."],
+  localUpdates: ["Cette copie utilise le lanceur local. Les mises à jour automatiques concernent la version du site.", "This copy uses the local launcher. Automatic updates are available in the website version."],
   choose: ["Ajouter des visuels", "Add designs"],
   dropHint: ["ou déposer des fichiers ici", "or drop files here"],
   libraryHelp: ["Glissez un visuel vers un cercle, ou sélectionnez un cercle puis cliquez sur un visuel.", "Drag a design onto a circle, or select a circle and click a design."],
@@ -82,7 +125,7 @@ const translations = {
   fromUrl: ["Ajouter depuis un lien", "Add from a URL"],
   urlLabel: ["Lien direct vers une image ou un PDF", "Direct image or PDF URL"],
   importUrl: ["Importer", "Import"],
-  urlHelp: ["Utilisez le lien direct vers le fichier image ou PDF.", "Use a direct link to an image or PDF file."],
+  urlHelp: ["Utilisez un lien direct vers une image ou un PDF. Si le site bloque la lecture, téléchargez le fichier puis ajoutez-le ici.", "Use a direct image or PDF link. If the site blocks access, download the file and add it here."],
   urlFailed: ["Impossible de lire ce lien. Utilisez une image ou un PDF accessible directement.", "Could not read this link. Use a directly accessible image or PDF URL."],
   filterSize: ["Filtrer par taille", "Filter by size"],
   allDesigns: ["Tous les visuels", "All designs"],
@@ -116,7 +159,8 @@ function readPreference(key, fallback) {
   }
 }
 
-let language = localStorage.getItem("badge-composer-language") === "en" ? "en" : "fr";
+let language = "fr";
+try {language = localStorage.getItem("badge-composer-language") === "en" ? "en" : "fr";} catch {}
 let presetId = readPreference("badge-composer-size", "58");
 if (!PRESETS[presetId]) presetId = "58";
 let layouts = readPreference("badge-composer-layouts", {});
@@ -205,9 +249,11 @@ function dimensions(asset, placement, format = preset()) {
 }
 
 async function request(path, options = {}) {
-  const response = await fetch(path, options);
-  if (!response.ok) throw new Error(t("offlineLibrary"));
-  return response;
+  try {
+    const response = await library.call(path, options);
+    if (!response.ok) throw new Error(t("offlineLibrary"));
+    return response;
+  } catch (error) {throw new Error(error.code && translations[error.code] ? t(error.code) : error.message);}
 }
 
 async function work(message, task) {
@@ -218,7 +264,7 @@ async function work(message, task) {
   try {
     await task();
   } catch (error) {
-    status(t("failure") + " " + error.message, true);
+    status(t("failure") + " " + (error.code && translations[error.code] ? t(error.code) : error.message), true);
   } finally {
     busy = false;
     render();
@@ -438,13 +484,22 @@ function renderSheet() {
 }
 
 function render() {
-  $("main").inert = busy;
+  $("main").inert = busy || storageFailed;
   $("#language").disabled = busy;
   document.documentElement.lang = language;
   document.title = t("title");
   $("#language").value = language;
   $("#preset").value = presetId;
   for (const node of document.querySelectorAll("[data-t]")) node.textContent = t(node.dataset.t);
+  $("#library-location").textContent = t(library?.local ? "librarySaved" : "browserLibrary");
+  $("#migration-help").hidden = !library?.local;
+  $("#import-backup-label").hidden = !!library?.local;
+  $("#protect-storage").hidden = !!library?.local;
+  $("#storage-error").hidden = !storageFailed;
+  $("#storage-error").textContent = t("storageUnavailable");
+  $("#export-backup").disabled = busy || !library;
+  $("#import-backup").disabled = busy || !library;
+  shell?.render();
   $("#search").placeholder = t("search");
   const previousFilter = $("#size-filter").value;
   $("#size-filter").replaceChildren(new Option(t("allDesigns"), "all"), new Option(t("currentSize"), "current"),
@@ -512,6 +567,7 @@ function render() {
 }
 
 async function readDesigns(file) {
+  if (file.size > 64 * 1024 * 1024) throw Object.assign(new Error("fileTooLarge"), {code: "fileTooLarge"});
   const bytes = new Uint8Array(await file.arrayBuffer());
   const extension = file.name.split(".").at(-1).toLowerCase();
   const mime = file.type || ({pdf: "application/pdf", png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg", webp: "image/webp"}[extension]);
@@ -578,8 +634,21 @@ async function ensureAssetData(asset) {
 }
 
 async function cacheAsset(asset) {
-  const info = Object.fromEntries(["kind", "mime", "width", "height", "pdfQuality", "suggestedSizes"]
+  const info = cacheInfo(asset);
+  const preview = thumbnail(asset);
+  const response = await request("/api/library/" + asset.id, {
+    method: "PATCH", headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({info, preview: preview.split(",")[1], sizes: asset.sizes || []}),
+  });
+  await response.json();
+}
+
+function cacheInfo(asset) {
+  return Object.fromEntries(["kind", "mime", "width", "height", "pdfQuality", "suggestedSizes"]
     .filter(key => asset[key] !== undefined).map(key => [key, asset[key]]));
+}
+
+function thumbnail(asset) {
   let preview = asset.preview;
   if (asset.image) {
     const canvas = document.createElement("canvas");
@@ -589,11 +658,7 @@ async function cacheAsset(asset) {
     canvas.getContext("2d").drawImage(asset.image, 0, 0, canvas.width, canvas.height);
     preview = canvas.toDataURL("image/png");
   }
-  const response = await request("/api/library/" + asset.id, {
-    method: "PATCH", headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({info, preview: preview.split(",")[1], sizes: asset.sizes || []}),
-  });
-  await response.json();
+  return preview;
 }
 
 async function importFiles(files, target = null) {
@@ -609,13 +674,15 @@ async function importFiles(files, target = null) {
             method: "POST",
             headers: {"Content-Type": design.mime, "X-File-Name": encodeURIComponent(design.name)},
             body: design.bytes,
+            ...(!library.local ? {initial: {info: cacheInfo(design), sizes: design.suggestedSizes?.length ? design.suggestedSizes : [presetId],
+              preview: new Blob([base64Bytes(thumbnail(design).split(",")[1])], {type: "image/png"})}} : {}),
           });
           const record = await response.json();
           let asset = assets.find(item => item.id === record.id);
           if (!asset) {
             asset = {...design, id: record.id, name: record.name, framings: record.framings || {}, sizes: record.sizes ?? (design.suggestedSizes?.length ? design.suggestedSizes : [presetId])};
             assets.push(asset);
-            await cacheAsset(asset);
+            if (library.local) await cacheAsset(asset);
           } else if (design.image) URL.revokeObjectURL(design.preview);
           const empty = next === null ? slots().indexOf(null) : next;
           if (empty >= 0 && empty < slots().length) {
@@ -970,10 +1037,7 @@ $("#url-form").onsubmit = async event => {
   event.preventDefault();
   let file;
   await work(t("adding"), async () => {
-    const response = await fetch("/api/import-url", {
-      method: "POST", headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({url: $("#design-url").value.trim()}),
-    });
+    const response = await importURL($("#design-url").value.trim(), library.local);
     if (!response.ok) throw new Error(t("urlFailed"));
     const name = decodeURIComponent(response.headers.get("X-File-Name") || "design");
     file = new File([await response.arrayBuffer()], name, {type: response.headers.get("Content-Type")});
@@ -983,7 +1047,7 @@ $("#url-form").onsubmit = async event => {
 
 $("#language").onchange = event => {
   language = event.target.value;
-  localStorage.setItem("badge-composer-language", language);
+  try {localStorage.setItem("badge-composer-language", language);} catch {status(t("layoutError"), true);}
   status("");
   render();
 };
@@ -1076,7 +1140,11 @@ $("#continue-print").onclick = () => {
   printSheet();
 };
 
-await work(t("loading"), async () => {
+async function loadLibrary() {
+  for (const asset of assets) {
+    for (const value of [asset.preview, asset.sourcePreview]) if (value?.startsWith("blob:")) URL.revokeObjectURL(value);
+  }
+  assets.length = 0;
   const response = await request("/api/library");
   const records = await response.json();
   const failed = [];
@@ -1085,7 +1153,7 @@ await work(t("loading"), async () => {
       if (record.info) {
         assets.push({...record.info, id: record.id, name: record.name, page: 0,
           sizes: record.sizes || [], framings: record.framings || {},
-          preview: "/api/library/" + record.id + "/preview"});
+          preview: await library.previewURL(record)});
       } else {
         const source = await request("/api/library/" + record.id + "/source");
         const designs = await readDesigns(new File([await source.arrayBuffer()], record.name, {type: record.type}));
@@ -1108,4 +1176,69 @@ await work(t("loading"), async () => {
   }
   status(failed.length ? t("failure") + " " + failed.join(" · ") : "", failed.length > 0);
   $("#library-disclosure").open = window.innerWidth > 750 || assets.length === 0;
+}
+
+$("#help").onclick = () => $("#app-help").showModal();
+$("#close-help").onclick = () => $("#app-help").close();
+$("#export-backup").onclick = async () => {
+  await work(t("backingUp"), async () => {
+    const backup = await makeBackup(library, {size: presetId, language, layouts, quantities});
+    const url = URL.createObjectURL(backup);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "badge-proof-" + new Date().toISOString().slice(0, 10) + ".badgeproof";
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+    status(t("backupSaved"));
+    $("#backup-status").textContent = t("backupSaved");
+  });
+};
+$("#import-backup").onchange = async event => {
+  const file = event.target.files[0];
+  if (!file) return;
+  $("#app-help").close();
+  stagedBackup = null;
+  await work(t("readingBackup"), async () => {
+    stagedBackup = await readBackup(file, async original => {
+      const designs = await readDesigns(original);
+      if (designs.length !== 1) throw Object.assign(new Error("invalidBackup"), {code: "invalidBackup"});
+      const asset = designs[0];
+      const preview = new Blob([base64Bytes(thumbnail(asset).split(",")[1])], {type: "image/png"});
+      const info = cacheInfo(asset);
+      if (asset.preview.startsWith("blob:")) URL.revokeObjectURL(asset.preview);
+      return {info, preview};
+    });
+    $("#backup-review-text").textContent = t("backupReviewHelp").replace("{count}", stagedBackup.records.length);
+    $("#backup-review").showModal();
+  });
+  event.target.value = "";
+};
+$("#cancel-restore").onclick = () => {stagedBackup = null; $("#backup-review").close();};
+$("#backup-review").addEventListener("close", () => {stagedBackup = null;});
+$("#confirm-restore").onclick = async () => {
+  const backup = stagedBackup;
+  stagedBackup = null;
+  $("#backup-review").close();
+  if (!backup || library.local) return;
+  await work(t("readingBackup"), async () => {
+    await library.restore(backup.records);
+    ({layouts, quantities, language} = backup.preferences);
+    presetId = backup.preferences.size;
+    selected = pageIndex = 0;
+    saveLayout();
+    try {localStorage.setItem("badge-composer-language", language);} catch {}
+    await loadLibrary();
+    status(t("restored"));
+  });
+};
+$("#protect-storage").onclick = async () => {
+  const granted = navigator.storage?.persist ? await navigator.storage.persist().catch(() => false) : false;
+  $("#backup-status").textContent = t(granted ? "storageProtected" : "storageNotProtected");
+};
+window.addEventListener("beforeprint", () => {printing = true;});
+window.addEventListener("afterprint", () => {printing = false;});
+await work(t("loading"), async () => {
+  try {library = await openLibrary();} catch (error) {storageFailed = true; throw error;}
+  await loadLibrary();
+  shell = await startShell({local: library.local, t, canReload: () => !busy && !printing && !document.querySelector("dialog[open]")});
 });

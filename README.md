@@ -2,24 +2,38 @@
 
 A local tool for composing mixed-design A4 button-badge print sheets. Import artwork, save reusable framing, set quantities and print or export a PDF. The interface switches between French and English.
 
-## Start
+## Open Badge Proof
 
-Download and extract this repository, then double-click:
+**[Use Badge Proof](https://tzioup-lab.github.io/badge-proof/)** — free, with no account, terminal or Python installation.
 
-- **Mac:** `Ouvrir-le-composeur.command`
-- **Windows:** `Ouvrir-le-composeur-Windows.bat`
+Use it in a modern browser on Mac or Windows. To give it an app icon:
 
-The launcher checks Python and bundled browser libraries. Missing components are downloaded and verified against pinned checksums. Mac installation may open the official Python installer and require your approval; Windows prepares a missing Python runtime inside `.runtime`. A modern browser is required.
+- **Chrome / Edge:** use Install in the browser menu, or the app's Install button when offered.
+- **Safari on Mac (Sonoma 14 or newer):** File → Add to Dock.
 
-The app opens at <http://127.0.0.1:8770/>. It works offline once dependencies are present. URL imports need access to their source.
+Install before adding designs. Safari's Dock apps and different browsers can have separate libraries; import a backup if a new app looks empty.
 
-If Python 3.10+ is already installed, you can also start it with:
+The first complete load prepares offline use. **Help and backups** shows when offline preparation is ready. File import, framing, PDF export and direct print work offline. Importing a remote URL and checking for updates need a connection.
 
-```sh
-python3 bootstrap.py --port 8770 --open
-```
+## Your library and backups
 
-On Windows, use `py -3` instead of `python3`.
+Artwork stays in browser storage on your device. The site does not upload your designs or backups. Save a `.badgeproof` backup through **Help and backups → Back up library**. It includes original files, size tags, saved framing, layouts, quantities and language. Keep a copy somewhere outside browser storage.
+
+**Clearing site data can delete the library.** Browser storage protection can be requested in Help and backups, but it does not replace a backup. Changing browser, profile, device or Safari Dock app can open a separate library.
+
+To restore or move devices, choose **Import backup**, review its contents and confirm. Matching design IDs are updated; unrelated designs remain. The backup's sheet settings replace current settings. Invalid/corrupt backups are rejected before library writes; imports commit in one database transaction.
+
+Existing local-server users can export from the updated local interface through Help and backups and import that file into the website. The original `.library` folder is kept. The website cannot silently read a different local installation's files or browser preferences.
+
+## Updates
+
+The app checks for updates on opening and hourly while open. A complete, integrity-checked new version waits behind **Reload with the new version / Later**. It does not force a reload in another window or apply during active work, an open settings dialog or printing. Failed/incomplete downloads leave the current offline version available.
+
+Library data is independent of the cached application version. Normal updates retain it. Manual update checks are in Help and backups.
+
+## Optional local launcher
+
+The original Mac/Windows launchers remain available for running a disk-backed local library. They may open a console and prepare Python. They are not required for the browser app. See [README.txt](README.txt) for that route.
 
 ## Compose a sheet
 
@@ -59,17 +73,13 @@ Coordinates are in [presets.js](presets.js), adapted from the project's existing
 
 Resolution checks use actual print size and crop zoom, including supported bitmap-image operations inside PDFs. Vector-only PDF content scales without pixelation; unanalysed PDF operations are flagged. A 25 mm design can print larger if its source has enough pixels. The app does not identify lettering or essential details: inspect text, contrast and safe-area placement visually.
 
-## Saved data
+## URL imports
 
-Design originals, thumbnails, size tags and per-size framing are stored in `.library` beside `serve.py`. Include that hidden folder in backups or when moving the app. It is excluded from Git.
-
-Sheet layouts, quantities and language are remembered in the browser. These do not follow the library to a different browser. The server listens only on this computer. Remote URL imports download the requested file without forwarding browser cookies or credentials.
-
-French instructions and additional details are in [README.txt](README.txt).
+Direct links work when the source permits cross-origin browser downloads. Some sites block this. The app explains the limitation and asks you to download the image/PDF and add the file instead. It does not route private files through a public proxy. The optional local server retains its existing direct-URL importer.
 
 ## Development and verification
 
-The application uses only the Python standard library and bundled JavaScript libraries. Node is needed only for browser tests.
+The hosted app uses bundled JavaScript libraries and browser APIs. Python is used for the static build and optional local server; Node is used for development tests.
 
 ```sh
 python3 bootstrap.py --check --offline
@@ -77,11 +87,15 @@ python3 bootstrap_check.py
 npm ci
 npx playwright install chromium
 npm test
+python3 build_site.py
+python3 -m http.server 8080 --directory dist
 ```
 
 `bootstrap_check.py` tests dependency repair in temporary folders and needs network access. On Mac it simulates a missing-Python installation without installing Python. Browser tests use synthetic artwork and a temporary library on an available local port; they do not use saved designs or send jobs to a printer.
 
-See [verification evidence and remaining checks](docs/VERIFICATION.md). Windows launcher execution and physical printing remain separate acceptance checks.
+The static build contains an explicit asset allowlist: no local library, Python server, private artwork, test fixtures or developer files are published. Successful main-branch checks trigger the GitHub Pages workflow.
+
+See [browser distribution decisions](docs/BROWSER-DISTRIBUTION.md) and [verification evidence and remaining checks](docs/VERIFICATION.md). Actual Safari Dock / Windows installation and physical printing remain separate acceptance checks.
 
 ## Dependencies and origin
 

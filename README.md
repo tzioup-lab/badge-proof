@@ -17,7 +17,9 @@ The first complete load prepares offline use. **Help and backups** shows when of
 
 ## Your library and backups
 
-Artwork stays in browser storage on your device. The site does not upload your designs or backups. Save a `.badgeproof` backup through **Help and backups → Back up library**. It includes original files, size tags, saved framing, layouts, quantities and language. Keep a copy somewhere outside browser storage. Backups use a ZIP-based format with a 4 GiB total limit and up to 10,000 designs (64 MiB each); oversized exports are refused before download. Legacy JSON backups can still be imported.
+Each device has its own library. Libraries do not automatically sync between devices, browsers, profiles or separate installed-app storage contexts. App updates and design-library transfers are separate: updates are automatic checks with a reload prompt; library transfer is manual backup/import.
+
+Artwork stays in browser storage on your device. The site does not upload your designs or backups. Save a `.badgeproof` backup through **Help and backups → Back up library**. It includes original files, size tags, saved framing, layouts, quantities and language. Keep a copy somewhere outside browser storage. Backups use a ZIP-based format with a total below 4 GiB and up to 10,000 designs (64 MiB each); oversized exports are refused before download. Legacy JSON backups can still be imported.
 
 **Clearing site data can delete the library.** Browser storage protection can be requested in Help and backups, but it does not replace a backup. Changing browser, profile, device or Safari Dock app can open a separate library.
 
@@ -95,7 +97,7 @@ python3 -m http.server 8080 --directory dist
 
 The static build contains an explicit asset allowlist: no local library, Python server, private artwork, test fixtures or developer files are published. Successful main-branch checks trigger the GitHub Pages workflow.
 
-See [browser distribution decisions](docs/BROWSER-DISTRIBUTION.md) and [verification evidence and remaining checks](docs/VERIFICATION.md). Actual Safari Dock / Windows installation and physical printing remain separate acceptance checks.
+For current delivery state, decisions and next steps, start with [Status and next steps](docs/STATUS.md). See also [browser distribution decisions](docs/BROWSER-DISTRIBUTION.md) and [verification evidence and remaining checks](docs/VERIFICATION.md). Actual Safari Dock / Windows installation and physical printing remain separate acceptance checks.
 
 ## Dependencies and origin
 

@@ -13,6 +13,9 @@ Les visuels restent dans le navigateur sur cet appareil. Ils ne sont pas
 envoyés au site. Aide et sauvegardes permet de télécharger une sauvegarde
 complète et de l'importer ailleurs. Effacer les données du site peut effacer
 la bibliothèque : conservez une sauvegarde hors du navigateur.
+Chaque appareil a sa propre bibliothèque ; aucune synchronisation automatique
+n'est effectuée. L'import conserve les autres visuels, met à jour ceux qui
+correspondent et remplace les planches, quantités et langue par la sauvegarde.
 
 Après le premier chargement complet, l'application peut fonctionner hors
 ligne. Consultez Aide et sauvegardes pour vérifier qu'elle est prête.
@@ -30,6 +33,9 @@ Safari apps can use separate libraries; import a backup if one looks empty.
 Artwork stays in browser storage on this device. Clearing site data may
 remove it. Help and backups saves originals, framing and sheet settings to
 a portable backup file. Keep a copy outside browser storage.
+Each device has its own library; there is no automatic cross-device sync.
+Import retains unrelated designs, updates matching ones and replaces sheet
+layouts, quantities and language with those from the backup.
 After a complete initial load, file import, PDF export and printing work
 offline. Completed updates wait for Reload with the new version / Later.
 URL imports depend on the source site's browser-access rules. If blocked,

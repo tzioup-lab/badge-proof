@@ -9,8 +9,13 @@ Installez avant d'ajouter vos visuels. Un autre navigateur ou une application
 Safari peut avoir sa propre bibliothèque ; importez votre sauvegarde si
 elle est vide.
 
+Visite guidée, dans l'en-tête : six étapes avec Suivant / Précédent et
+Montrer les commandes. Fermez à tout moment, ou utilisez Échap. Aide ouvre
+les questions fréquentes écrites, les sauvegardes et les mises à jour,
+sans lancer la visite.
+
 Les visuels restent dans le navigateur sur cet appareil. Ils ne sont pas
-envoyés au site. Aide et sauvegardes permet de télécharger une sauvegarde
+envoyés au site. Aide permet de télécharger une sauvegarde
 complète et de l'importer ailleurs. Effacer les données du site peut effacer
 la bibliothèque : conservez une sauvegarde hors du navigateur.
 Chaque appareil a sa propre bibliothèque ; aucune synchronisation automatique
@@ -18,7 +23,7 @@ n'est effectuée. L'import conserve les autres visuels, met à jour ceux qui
 correspondent et remplace les planches, quantités et langue par la sauvegarde.
 
 Après le premier chargement complet, l'application peut fonctionner hors
-ligne. Consultez Aide et sauvegardes pour vérifier qu'elle est prête.
+ligne. Consultez Aide pour vérifier qu'elle est prête.
 Une mise à jour complète attend votre accord pour recharger l'application ;
 votre travail et vos visuels sont conservés. Vous pouvez choisir Plus tard.
 
@@ -30,8 +35,11 @@ Open the link above. No account, terminal or Python installation is needed.
 Install an icon through Chrome/Edge, or Safari on Mac (Sonoma 14+):
 File → Add to Dock. Install before adding designs. Different browsers and
 Safari apps can use separate libraries; import a backup if one looks empty.
+Guided walkthrough in the header offers six work-along steps; close it
+at any time or press Escape. Help opens written FAQs, backup controls
+and update status independently of the tour.
 Artwork stays in browser storage on this device. Clearing site data may
-remove it. Help and backups saves originals, framing and sheet settings to
+remove it. Help saves originals, framing and sheet settings to
 a portable backup file. Keep a copy outside browser storage.
 Each device has its own library; there is no automatic cross-device sync.
 Import retains unrelated designs, updates matching ones and replaces sheet

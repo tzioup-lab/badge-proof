@@ -14,7 +14,7 @@
 <div id="app">
 <header class="app-header">
   <div><span class="brand">BADGE PROOF · <span id="app-version"></span></span><h1 data-t="title">Composer une planche</h1></div>
-  <div class="header-actions"><button id="install-app" class="secondary" data-t="installApp" hidden>Installer l’application</button><button id="help" class="secondary" data-t="help">Aide et sauvegardes</button><label class="language"><span data-t="language">Langue</span><select id="language"><option value="fr">Français</option><option value="en">English</option></select></label></div>
+  <div class="header-actions"><button id="install-app" class="secondary" data-t="installApp" hidden>Installer l’application</button><button id="start-walkthrough" class="secondary">Visite guidée</button><button id="help" class="secondary" data-t="help">Aide</button><label class="language"><span data-t="language">Langue</span><select id="language"><option value="fr">Français</option><option value="en">English</option></select></label></div>
 </header>
 <p id="storage-error" class="fatal-error" role="alert" hidden></p>
 <section id="update-banner" class="update-banner" role="status" hidden><p id="update-text" data-t="updateReady">Une nouvelle version est prête.</p><button id="apply-update" class="primary" data-t="applyUpdate">Recharger avec la nouvelle version</button><button id="dismiss-update" class="secondary" data-t="later">Plus tard</button></section>
@@ -23,7 +23,7 @@
     <summary class="panel-heading"><h2 data-t="library">Bibliothèque</h2><span class="library-summary-end"><span id="asset-count" class="count"></span><span class="library-chevron" aria-hidden="true">⌄</span></span></summary>
     <div class="library-body">
     <p id="library-location" class="hint">Vos visuels sont enregistrés sur cet ordinateur.</p>
-    <label id="drop-zone" class="drop-zone">
+    <label id="drop-zone" class="drop-zone" role="button" tabindex="0">
       <span class="add-icon" aria-hidden="true">+</span>
       <strong data-t="choose">Ajouter des visuels</strong>
       <span class="hint" data-t="dropHint">ou déposer des fichiers ici</span>
@@ -51,8 +51,8 @@
     <p id="sheet-quality" class="hint sheet-quality" aria-live="polite"></p>
     <div class="composition">
       <div class="preview-panel">
-        <div class="preview-toolbar"><span id="sheet-count"></span><label><input type="checkbox" id="zones" checked><span data-t="showZones">Afficher les zones</span></label></div>
-        <nav class="page-navigation" aria-label="Pages"><button id="previous-page" aria-label="Page précédente">‹</button><span id="page-count"></span><button id="next-page" aria-label="Page suivante">›</button><button id="add-page" class="text-button" data-t="addPage">Ajouter une page</button></nav>
+        <div class="board-controls"><div class="preview-toolbar"><span id="sheet-count"></span><label><input type="checkbox" id="zones" checked><span data-t="showZones">Afficher les zones</span></label></div>
+        <nav class="page-navigation" aria-label="Pages"><button id="previous-page" aria-label="Page précédente">‹</button><span id="page-count"></span><button id="next-page" aria-label="Page suivante">›</button><button id="add-page" class="text-button" data-t="addPage">Ajouter une page</button></nav></div>
         <div id="sheet" class="sheet"><span class="paper-label">A4 · 210 × 297 mm</span><div class="scale"><span>50 mm</span></div></div>
         <div class="sheet-footer"><span id="legend" class="hint"></span><button id="clear" class="text-button" data-t="clear">Vider cette planche</button></div>
       </div>
@@ -106,17 +106,26 @@
   <div class="print-setup-actions"><button id="cancel-print" class="secondary" data-t="cancelPrint">Annuler</button><button id="continue-print" class="primary" data-t="continuePrint">Ouvrir la fenêtre d’impression</button></div>
 </dialog>
 <dialog id="app-help" aria-labelledby="app-help-title">
-  <div class="editor-header"><h2 id="app-help-title" data-t="help">Aide et sauvegardes</h2><button id="close-help" class="text-button" data-t="close">Fermer</button></div>
+  <div class="editor-header"><h2 id="app-help-title" data-t="helpTitle">Aide et questions fréquentes</h2><button id="close-help" class="text-button" data-t="close">Fermer</button></div>
+  <section class="faq-reference" aria-labelledby="faq-heading"><h3 id="faq-heading"></h3><p id="faq-intro" class="hint"></p><div id="faq-topics"></div></section>
+  <hr>
   <h3 data-t="backupTitle">Votre bibliothèque reste sur cet appareil</h3>
   <p class="hint" data-t="backupHelp"></p>
   <div class="help-actions"><button id="export-backup" class="primary" data-t="exportBackup">Sauvegarder la bibliothèque</button><label id="import-backup-label" class="file-button"><span data-t="importBackup">Importer une sauvegarde</span><input id="import-backup" type="file" accept=".badgeproof,.json,application/json"></label><button id="protect-storage" class="secondary" data-t="protectStorage">Demander la conservation des données</button></div>
   <p id="backup-status" class="hint" role="status"></p>
   <p id="migration-help" class="hint" data-t="migrationHelp" hidden></p>
   <hr>
-  <p class="hint" data-t="installHelp"></p>
+  <h3 data-t="appStatusTitle">Application et mises à jour</h3>
   <div class="help-actions"><button id="check-updates" class="secondary" data-t="checkUpdates">Vérifier les mises à jour</button><span id="shell-status" class="hint" role="status"></span></div>
 </dialog>
 <dialog id="backup-review" aria-labelledby="backup-review-title"><h2 id="backup-review-title" data-t="backupReview">Importer cette sauvegarde ?</h2><p id="backup-review-text" class="hint"></p><div class="help-actions"><button id="cancel-restore" class="secondary" data-t="cancel">Annuler</button><button id="confirm-restore" class="primary" data-t="restoreBackup">Importer</button></div></dialog>
+<dialog id="walkthrough" class="tour-panel" aria-labelledby="tour-title" aria-describedby="tour-body">
+  <div class="tour-heading"><span id="tour-progress"></span><button id="tour-close" class="text-button">Fermer la visite</button></div>
+  <progress id="tour-meter" max="6" value="1" aria-hidden="true"></progress>
+  <div class="tour-copy" aria-live="polite" aria-atomic="true"><h2 id="tour-title"></h2><p id="tour-body"></p></div>
+  <button id="tour-show" class="text-button">Montrer les commandes</button>
+  <div class="tour-actions"><button id="tour-back" class="secondary">Précédent</button><button id="tour-next" class="primary">Suivant</button></div>
+</dialog>
 <div id="print-output" aria-hidden="true"></div>
 <script src="vendor/pdf-lib.min.js"></script>
 <script type="module" src="composer.js"></script>

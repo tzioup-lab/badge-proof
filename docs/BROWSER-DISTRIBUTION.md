@@ -22,7 +22,7 @@ Every build has a version plus a content hash. Static asset URLs are versioned. 
 
 A waiting update requires Reload with the new version. Active operations, print sessions and open dialogs block that action. Other windows are not forcibly reloaded. Older versioned asset caches remain while other windows may still need them. With one window left at activation, obsolete application caches are removed. Library data is outside these application caches.
 
-The app checks on load and hourly while open; manual checking is also available. Offline mode keeps the installed version usable. First-use offline availability starts after the initial asset cache completes, and its state is shown in Help and backups.
+The app checks on load and hourly while open; manual checking is also available. Offline mode keeps the installed version usable. First-use offline availability starts after the initial asset cache completes, and its state is shown in Help.
 
 ## Deliberate limitations
 

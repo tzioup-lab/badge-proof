@@ -13,25 +13,33 @@ Use it in a modern browser on Mac or Windows. To give it an app icon:
 
 Install before adding designs. Safari's Dock apps and different browsers can have separate libraries; import a backup if a new app looks empty.
 
-The first complete load prepares offline use. **Help and backups** shows when offline preparation is ready. File import, framing, PDF export and direct print work offline. Importing a remote URL and checking for updates need a connection.
+The first complete load prepares offline use. **Help** shows when offline preparation is ready. File import, framing, PDF export and direct print work offline. Importing a remote URL and checking for updates need a connection.
+
+## Guided walkthrough and Help
+
+**Guided walkthrough / Visite guidée** in the header opens six short steps: size, import, copies, framing, printing and backups. Use Back/Next and Show the controls to follow along with your own sheet. Close it at any time, or press Escape. It does not replace your designs or layout.
+
+**Help / Aide** is an independent written reference. Open a FAQ topic for print settings, safe circles, saved framing, resolution, quantities, URL imports, local libraries, installation or updates. Backup and update controls remain in Help. Help can be used without starting the tour.
+
+The upload area and sheet controls are compact, with a stacked/collapsible library on tablet and phone widths. Low-resolution warnings remain visible above the sheet; general guidance is in Help and the inspector.
 
 ## Your library and backups
 
 Each device has its own library. Libraries do not automatically sync between devices, browsers, profiles or separate installed-app storage contexts. App updates and design-library transfers are separate: updates are automatic checks with a reload prompt; library transfer is manual backup/import.
 
-Artwork stays in browser storage on your device. The site does not upload your designs or backups. Save a `.badgeproof` backup through **Help and backups → Back up library**. It includes original files, size tags, saved framing, layouts, quantities and language. Keep a copy somewhere outside browser storage. Backups use a ZIP-based format with a total below 4 GiB and up to 10,000 designs (64 MiB each); oversized exports are refused before download. Legacy JSON backups can still be imported.
+Artwork stays in browser storage on your device. The site does not upload your designs or backups. Save a `.badgeproof` backup through **Help → Back up library**. It includes original files, size tags, saved framing, layouts, quantities and language. Keep a copy somewhere outside browser storage. Backups use a ZIP-based format with a total below 4 GiB and up to 10,000 designs (64 MiB each); oversized exports are refused before download. Legacy JSON backups can still be imported.
 
-**Clearing site data can delete the library.** Browser storage protection can be requested in Help and backups, but it does not replace a backup. Changing browser, profile, device or Safari Dock app can open a separate library.
+**Clearing site data can delete the library.** Browser storage protection can be requested in Help, but it does not replace a backup. Changing browser, profile, device or Safari Dock app can open a separate library.
 
 To restore or move devices, choose **Import backup**, review its contents and confirm. Matching design IDs are updated; unrelated designs remain. The backup's sheet settings replace current settings. Invalid/corrupt backups are rejected before library writes; imports commit in one database transaction.
 
-Existing local-server users can export from the updated local interface through Help and backups and import that file into the website. The original `.library` folder is kept. The website cannot silently read a different local installation's files or browser preferences.
+Existing local-server users can export from the updated local interface through Help and import that file into the website. The original `.library` folder is kept. The website cannot silently read a different local installation's files or browser preferences.
 
 ## Updates
 
 The app checks for updates on opening and hourly while open. A complete, integrity-checked new version waits behind **Reload with the new version / Later**. It does not force a reload in another window or apply during active work, an open settings dialog or printing. Failed/incomplete downloads leave the current offline version available.
 
-Library data is independent of the cached application version. Normal updates retain it. Manual update checks are in Help and backups.
+Library data is independent of the cached application version. Normal updates retain it. Manual update checks are in Help.
 
 ## Optional local launcher
 

@@ -1,6 +1,6 @@
 # Verification baseline
 
-Last reconciled 2026-11-22. Browser app v0.3.0 includes guided help and the compact workspace. [Current status and next steps](STATUS.md) distinguishes shipped work from manual acceptance. The earlier local-tool evidence below remains relevant to its shared composer.
+Last reconciled 2026-11-23 (Europe/Paris). Browser app v0.3.0 includes guided help and the compact workspace. [Current status and next steps](STATUS.md) distinguishes shipped work from manual acceptance. The earlier local-tool evidence below remains relevant to its shared composer.
 
 ## Verified locally on macOS / Chrome
 
@@ -64,7 +64,7 @@ Verified behaviors:
 
 These engine checks do not certify Safari's Add to Dock flow, a Windows app installation or actual printer output. Those remain manual acceptance checks. The optional Python-launcher checks above are separate from the browser app, which needs no Python.
 
-## Published release evidence
+## v0.2.0 publication (historical)
 
 - [Merged-main Checks](https://github.com/tzioup-lab/badge-proof/actions/runs/45056554078): Chromium, Firefox and WebKit passed for application commit `29cb01d`.
 - [Pages publication](https://github.com/tzioup-lab/badge-proof/actions/runs/45056659110): succeeded for that checked commit.
@@ -80,3 +80,14 @@ Evidence is also linked from [delivery issue #1](https://github.com/tzioup-lab/b
 `tests/guidance.cjs`, called by the production-build browser suite, checks French/English tour navigation, Escape/focus restoration, independent FAQ access, keyboard file-picker access, unchanged saved preferences, live warnings, 320/390/768/1000/1440 px layouts and exclusion from print output. The upload box measures about 61 px versus the previous roughly 130 px. A deterministic regression also dismisses the tour and focuses upload in the same task: the queued dialog close event must not steal the next keyboard action. The update test also refuses reload while the walkthrough is open. New guidance assets are included in the offline asset manifest; the existing offline, backup, multi-window update, corrupt-update and exact-A4 print tests continue to run.
 
 Local Chrome and WebKit runs passed these behaviors and the existing regressions. GitHub Checks runs all three engines and retains synthetic screenshots under `test-results/<engine>/`. OS installation and physical printer acceptance remain #2; this UI change does not complete those runs.
+
+### v0.3.0 publication and session closeout
+
+Verified 2026-11-23 (Europe/Paris):
+
+- [Final main Checks](https://github.com/tzioup-lab/badge-proof/actions/runs/45081671547): Chromium, Firefox and WebKit passed for application commit `1e0da5e`, including the deterministic dismissal/focus regression. [Pages publication](https://github.com/tzioup-lab/badge-proof/actions/runs/45081799177) succeeded for that commit.
+- Live HTTPS: the v0.3.0 header, six-step walkthrough and independent written FAQs worked offline after a fresh document reload. A synthetic saved design remained available; the clean PDF measured 210 × 297 mm; no page errors or artwork POST requests occurred.
+- An existing v0.2.0 verification tab found the update through Help, then loaded v0.3.0 through the normal reload prompt. This is browser-update evidence, not Safari Dock/Windows installation sign-off.
+- The optional local UI was updated without modifying its library files. No real artwork, backups or machine-specific test outputs were published. [Issue #5](https://github.com/tzioup-lab/badge-proof/issues/5) contains the delivery record and is closed. [Issue #2](https://github.com/tzioup-lab/badge-proof/issues/2) remains the only open acceptance issue.
+
+Current decisions, uncommitted roadmap candidates and the next session's starting point are in [Status and next steps](STATUS.md). There is no pending product decision or implementation handoff blocking use of this release.

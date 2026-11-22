@@ -1,6 +1,6 @@
 # Status and next steps
 
-Last reconciled: 2026-11-22. Start here when resuming maintenance.
+Last reconciled: 2026-11-23 (Europe/Paris). Start here when resuming maintenance.
 
 ## Shipped
 
@@ -8,9 +8,13 @@ Last reconciled: 2026-11-22. Start here when resuming maintenance.
 
 The app imports supplied artwork, saves a local library and per-size framing, composes quantities across A4 pages, and exports clean/guided PDFs or prepares direct printing. It supports 25, 32 and 58 mm presets and French/English. It does not generate artwork or slogans; that remains a separate project.
 
-The header offers an optional six-step guided walkthrough and independent written Help/FAQs in French and English. Upload and board controls are compact at phone/tablet widths. [Guidance issue #5](https://github.com/tzioup-lab/badge-proof/issues/5) tracks this v0.3.0 change.
+The header offers an optional six-step guided walkthrough and independent written Help/FAQs in French and English. Upload and board controls are compact at phone/tablet widths. [Guidance issue #5](https://github.com/tzioup-lab/badge-proof/issues/5) is closed; [PR #6](https://github.com/tzioup-lab/badge-proof/pull/6) and the [dismissal-focus correction #7](https://github.com/tzioup-lab/badge-proof/pull/7) are merged. The correction prevents a queued close event from stealing the next keyboard action.
 
 Offline preparation, portable backups and deferred app updates are implemented. The optional disk-backed local launcher remains available. Private originals and backups are excluded from the repository and published site.
+
+Release verification is complete: [all three main-branch browser checks](https://github.com/tzioup-lab/badge-proof/actions/runs/45081671547) and [Pages publication](https://github.com/tzioup-lab/badge-proof/actions/runs/45081799177) passed for application commit `1e0da5e`. Live offline guidance, retained test artwork, A4 PDF export and the normal v0.2.0 → v0.3.0 update prompt were verified. The optional local interface is updated; private library files were preserved.
+
+No implementation PR or feature branch remains open from this session. The next work is the manual acceptance below, not another implementation pass.
 
 ## Accepted decisions
 
